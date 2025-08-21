@@ -1,0 +1,1120 @@
+//attempt counter snippet
+
+        {attempts > 0 && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="mt-4 text-red-400 text-sm"
+          >
+            Failed attempts: {attempts}
+          </motion.p>
+        )}
+
+
+//program carousel current code
+
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+
+const phases = [
+  {
+    title: "The Mjolnir",
+    description: "This chapter is all about forging raw strength with brutally dedicated conviction. Inspired by the legendary hammer of Thor, this phase will build your foundation with heavy lifts and relentless intensity. This phase is all about going hard, and going heavy. The structure will build a robust foundation with a perfect balance of dominance and recovery. Unleash the thunder with sheer power and strength. Embrace the grind and let your power surge.",
+    table: (
+      <div className="overflow-x-auto mb-4">
+        <h2 className="text-4xl font-bold mb-4">ᚨ</h2>
+        <table className="min-w-full text-left overflow-hidden">
+          <thead>
+            <tr>
+              <th className="bg-white text-black font-bold px-4 py-2">Exercise</th>
+              <th className="bg-white text-black font-bold px-4 py-2">Sets/Rounds</th>
+              <th className="bg-white text-black font-bold px-4 py-2"><div className="skew-right">Reps</div></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Barbell Squats</td>
+              <td className="px-4 py-2">4 Sets</td>
+              <td className="px-4 py-2 pr-10">5-6 Reps</td>
+            </tr>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Deadlifts</td>
+              <td className="px-4 py-2">4 Sets</td>
+              <td className="px-4 py-2 pr-10">5-6 Reps</td>
+            </tr>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Weighted Pull-ups</td>
+              <td className="px-4 py-2">4 Sets</td>
+              <td className="px-4 py-2 pr-10">5-6 Reps</td>
+            </tr>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Ring Dips</td>
+              <td className="px-4 py-2">4 Sets</td>
+              <td className="px-4 py-2 pr-10">5-6 Reps</td>
+            </tr>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Overhead Carries</td>
+              <td className="px-4 py-2">4 Rounds</td>
+              
+            </tr>
+          </tbody>
+          <thead>
+            <tr>
+              <th className="bg-white text-black font-bold px-4 py-2" colspan="3">Cardio</th>
+            </tr>
+            <tr className='skew-row'>
+              <td className="px-4 py-2">Rowing</td>
+              <td className="px-4 py-2">Duration: 15 mins</td>
+            </tr>
+          </thead>
+          <tfoot>
+            <tr>
+              <td className="px-4 py-2" colSpan="3">
+                <p className="text-sm text-gray-400">Rest 3-4 minutes between sets. Focus on form and control. Aim for progressive overload.</p>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+        
+        <br/><br/>
+        <h2 className="text-4xl font-bold mb-4">ᛒ</h2>
+        <table className="min-w-full text-left overflow-hidden">
+          <thead>
+            <tr>
+              <th className="bg-white text-black font-bold px-4 py-2">Exercise</th>
+              <th className="bg-white text-black font-bold px-4 py-2">Sets/Rounds</th>
+              <th className="bg-white text-black font-bold px-4 py-2"><div className="skew-right">Reps</div></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Weighted Pistol Squats</td>
+              <td className="px-4 py-2">4 Sets</td>
+              <td className="px-4 py-2 pr-10">5-6 Reps</td>
+            </tr>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Loaded Back Extensions</td>
+              <td className="px-4 py-2">4 Sets</td>
+              <td className="px-4 py-2 pr-10">5-6 Reps</td>
+            </tr>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Barbell Rows</td>
+              <td className="px-4 py-2">4 Sets</td>
+              <td className="px-4 py-2 pr-10">5-6 Reps</td>
+            </tr>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Overhead Press</td>
+              <td className="px-4 py-2">4 Sets</td>
+              <td className="px-4 py-2 pr-10">5-6 Reps</td>
+            </tr>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Farmer Carries</td>
+              <td className="px-4 py-2">4 Rounds</td>
+              
+            </tr>
+          </tbody>
+          <thead>
+            <tr>
+              <th className="bg-white text-black font-bold px-4 py-2" colspan="3">Cardio</th>
+            </tr>
+            <tr className='skew-row'>
+              <td className="px-4 py-2">Rowing</td>
+              <td className="px-4 py-2">Duration: 15 mins</td>
+            </tr>
+          </thead>
+          <tfoot>
+            <tr>
+              <td className="px-4 py-2" colSpan="3">
+                <p className="text-sm text-gray-400">Rest 3-4 minutes between sets. Focus on form and control. Aim for progressive overload.</p>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+        <br />
+        <h4 className='text-1xl text-left mb-4'>Week 1: ᚨ &rarr; ᛒ &rarr; ᚨ</h4>
+        <h4 className='text-1xl text-left mb-4'>Week 2: ᛒ &rarr; ᚨ &rarr; ᛒ</h4>
+      </div>
+    )
+  },
+  {
+    title: "The Gungnir",
+    description: "Unbridle the calibre of your body and mind. This phase is about relentless intensity and pushing past your limits. Embrace the chaos and let your willpower reign. This phase is inspired by Odin's spear, Gungnir, symbolizing precision and power. Refine your body with the precision of a warrior's weapon. Focused on hypertrophy, movement quality, control and joint resilience, this phase will challenge your limits, enhance your potential and build your mental fortitude. Embrace the fury and let your strength pierce through any obstacle.",
+    table: (
+      <div className="overflow-x-auto mb-4">
+        <h2 className="text-4xl font-bold mb-4">ᚨ</h2>
+        <table className="min-w-full text-left overflow-hidden">
+          <thead>
+            <tr>
+              <th className="bg-white text-black font-bold px-4 py-2">Exercise</th>
+              <th className="bg-white text-black font-bold px-4 py-2">Sets/Rounds</th>
+              <th className="bg-white text-black font-bold px-4 py-2"><div className="skew-right">Reps</div></th>
+            </tr>
+          </thead>
+          <tbody>
+            <th className="bg-gray-300 text-black font-bold px-4 py-2" colspan="3">Giant Set 1:</th>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Pull-ups</td>
+              <td className="px-4 py-2">3 Sets</td>
+              <td className="px-4 py-2 pr-10">5-6 Reps</td>
+            </tr>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Straight/Parallel Bar dips</td>
+              <td className="px-4 py-2">3 Sets</td>
+              <td className="px-4 py-2 pr-10">5-6 Reps</td>
+            </tr>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Leg Extensions</td>
+              <td className="px-4 py-2">3 Sets</td>
+              <td className="px-4 py-2 pr-10">5-6 Reps</td>
+            </tr>
+            <th className="bg-gray-300 text-black font-bold px-4 py-2" colspan="3">Giant Set 2:</th>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Cable Rows</td>
+              <td className="px-4 py-2">3 Sets</td>
+              <td className="px-4 py-2 pr-10">5-6 Reps</td>
+            </tr>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Incline Bench Press</td>
+              <td className="px-4 py-2">3 Sets</td>
+              <td className="px-4 py-2 pr-10">5-6 Reps</td>
+            </tr>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Hamstring Curls</td>
+              <td className="px-4 py-2">3 Sets</td>
+              <td className="px-4 py-2 pr-10">5-6 Reps</td>
+            </tr>
+            <th className="bg-gray-300 text-black font-bold px-4 py-2" colspan="3">Finisher</th>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Rear Delt Flies</td>
+              <td className="px-4 py-2">3 sets</td>
+              <td className="px-4 py-2 pr-10">5 Reps</td>
+            </tr>
+            <th className="bg-gray-300 text-black font-bold px-4 py-2" colspan="3">Isolation</th>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Tricep Pushdowns</td>
+              <td className="px-4 py-2">2 sets</td>
+              <td className="px-4 py-2 pr-10">5 Reps</td>
+            </tr>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Dumbbell Lu Raises</td>
+              <td className="px-4 py-2">2 Sets</td>
+              <td className="px-4 py-2 pr-10">5 Reps</td>
+            </tr>
+          </tbody>
+          <thead>
+            <tr>
+              <th className="bg-white text-black font-bold px-4 py-2" colspan="3">Cardio</th>
+            </tr>
+            <tr className='skew-row'>
+              <td className="px-4 py-2">Rowing</td>
+              <td className="px-4 py-2">Duration: 15 mins</td>
+            </tr>
+          </thead>
+          <tfoot>
+            <tr>
+              <td className="px-4 py-2" colSpan="3">
+                <p className="text-sm text-gray-400">Rest 3-4 minutes between sets. Focus on form and control. Aim for progressive overload.</p>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+        
+        <br/><br/>
+        <h2 className="text-4xl font-bold mb-4">ᛒ</h2>
+        <table className="min-w-full text-left overflow-hidden">
+          <thead>
+            <tr>
+              <th className="bg-white text-black font-bold px-4 py-2">Exercise</th>
+              <th className="bg-white text-black font-bold px-4 py-2">Sets/Rounds</th>
+              <th className="bg-white text-black font-bold px-4 py-2"><div className="skew-right">Reps</div></th>
+            </tr>
+          </thead>
+          <tbody>
+            <th className="bg-gray-300 text-black font-bold px-4 py-2" colspan="3">Giant Set 1:</th>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Weighted Pushups</td>
+              <td className="px-4 py-2">3 Sets</td>
+              <td className="px-4 py-2 pr-10">5-6 Reps</td>
+            </tr>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Lat Pulldowns</td>
+              <td className="px-4 py-2">3 Sets</td>
+              <td className="px-4 py-2 pr-10">5-6 Reps</td>
+            </tr>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Walking Lunges</td>
+              <td className="px-4 py-2">3 Sets</td>
+              <td className="px-4 py-2 pr-10">5-6 Reps</td>
+            </tr>
+            <th className="bg-gray-300 text-black font-bold px-4 py-2" colspan="3">Giant Set 2:</th>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Dumbbell Shoulder Press</td>
+              <td className="px-4 py-2">3 Sets</td>
+              <td className="px-4 py-2 pr-10">5-6 Reps</td>
+            </tr>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Frontlever Pulls</td>
+              <td className="px-4 py-2">3 Sets</td>
+              <td className="px-4 py-2 pr-10">5-6 Reps</td>
+            </tr>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Romanian Deadlifts</td>
+              <td className="px-4 py-2">3 Sets</td>
+              <td className="px-4 py-2 pr-10">5-6 Reps</td>
+            </tr>
+            <th className="bg-gray-300 text-black font-bold px-4 py-2" colspan="3">Finisher</th>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Cable Chest flies</td>
+              <td className="px-4 py-2">3 sets</td>
+              <td className="px-4 py-2 pr-10">5 Reps</td>
+            </tr>
+            <th className="bg-gray-300 text-black font-bold px-4 py-2" colspan="3">Isolation</th>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Bicep Curls</td>
+              <td className="px-4 py-2">2 sets</td>
+              <td className="px-4 py-2 pr-10">5 Reps</td>
+            </tr>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Dumbbell Lateral Raises</td>
+              <td className="px-4 py-2">2 Sets</td>
+              <td className="px-4 py-2 pr-10">5 Reps</td>
+            </tr>
+          </tbody>
+          <thead>
+            <tr>
+              <th className="bg-white text-black font-bold px-4 py-2" colspan="3">Cardio</th>
+            </tr>
+            <tr className='skew-row'>
+              <td className="px-4 py-2">Jump Rope</td>
+              <td className="px-4 py-2">Duration: 10 mins</td>
+            </tr>
+          </thead>
+          <tfoot>
+            <tr>
+              <td className="px-4 py-2" colSpan="3">
+                <p className="text-sm text-gray-400">Rest 3-4 minutes between sets. Focus on form and control. Aim for progressive overload.</p>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+        <br />
+        <h4 className='text-1xl text-left mb-4'>Week 3: ᚨ &rarr; ᛒ &rarr; ᚨ</h4>
+        <h4 className='text-1xl text-left mb-4'>Week 4: ᛒ &rarr; ᚨ &rarr; ᛒ</h4>
+      </div>
+    )
+  },
+  {
+    title: "The Skofnung",
+    description: "Named after the legendary sword Skofnung — sharp, swift, and feared — this phase is built on endurance, precision, and discipline. It's not about brute strength — it's about lasting through the burn, rep after rep, set after set. You'll sharpen your resilience, amplify work capacity, and condition your body to endure and recover with relentless pace. Like Skofnung's edge, you will become efficient, unyielding, and forged for the long war. This is the grind where champions are tempered.",
+    table: (
+      <div className="overflow-x-auto mb-4">
+        <h2 className="text-4xl font-bold mb-4">ᚨ</h2>
+        <table className="min-w-full text-left overflow-hidden">
+          <thead>
+            <tr>
+              <th className="bg-white text-black font-bold px-4 py-2">Exercise</th>
+              <th className="bg-white text-black font-bold px-4 py-2">Sets/Rounds</th>
+              <th className="bg-white text-black font-bold px-4 py-2"><div className="skew-right">Reps</div></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Lat Pulldowns</td>
+              <td className="px-4 py-2">2 Sets</td>
+              <td className="px-4 py-2 pr-10">5-6 Reps</td>
+            </tr>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Goblet Squats</td>
+              <td className="px-4 py-2">2 Sets</td>
+              <td className="px-4 py-2 pr-10">5-6 Reps</td>
+            </tr>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Dumbbell Shoulder Press</td>
+              <td className="px-4 py-2">2 Sets</td>
+              <td className="px-4 py-2 pr-10">5-6 Reps</td>
+            </tr>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Kettlebell Swings</td>
+              <td className="px-4 py-2">2 Sets</td>
+              <td className="px-4 py-2 pr-10">5-6 Reps</td>
+            </tr>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Cable rows</td>
+              <td className="px-4 py-2">2 Sets</td>
+              <td className="px-4 py-2 pr-10">5-6 Reps</td>
+            </tr>
+            <th className="bg-gray-300 text-black font-bold px-4 py-2" colspan="3">Isolation</th>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Toes-to-Bar</td>
+              <td className="px-4 py-2">2 sets</td>
+              <td className="px-4 py-2 pr-10">10-15 Reps</td>
+            </tr>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Windshield Wipers</td>
+              <td className="px-4 py-2">2 Sets</td>
+              <td className="px-4 py-2 pr-10">16-20 Reps</td>
+            </tr>
+          </tbody>
+          <thead>
+            <th className="bg-white text-black font-bold px-4 py-2" colspan="3">Cardio</th>
+            <tr className='skew-row'>
+              <td className="px-4 py-2">Rowing</td>
+              <td className="px-4 py-2">Duration: 15 mins</td>
+            </tr>
+          </thead>
+          <tfoot>
+            <tr>
+              <td className="px-4 py-2" colSpan="3">
+                <p className="text-sm text-gray-400">Rest 3-4 minutes between sets. Focus on form and control. Aim for progressive overload.</p>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+        <br/><br/>
+        
+        <h2 className="text-4xl font-bold mb-4">ᛒ</h2>
+        <table className="min-w-full text-left overflow-hidden">
+          <thead>
+            <tr>
+              <th className="bg-white text-black font-bold px-4 py-2">Exercise</th>
+              <th className="bg-white text-black font-bold px-4 py-2">Sets/Rounds</th>
+              <th className="bg-white text-black font-bold px-4 py-2"><div className="skew-right">Reps</div></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Dumbbell Bench Press</td>
+              <td className="px-4 py-2">2 Sets</td>
+              <td className="px-4 py-2 pr-10">5-6 Reps</td>
+            </tr>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Explosive Lunges</td>
+              <td className="px-4 py-2">2 Sets</td>
+              <td className="px-4 py-2 pr-10">5-6 Reps</td>
+            </tr>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Inverted Rows</td>
+              <td className="px-4 py-2">2 Sets</td>
+              <td className="px-4 py-2 pr-10">5-6 Reps</td>
+            </tr>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Hamstring Curls</td>
+              <td className="px-4 py-2">2 Sets</td>
+              <td className="px-4 py-2 pr-10">5-6 Reps</td>
+            </tr>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Dumbbell Shoulder Press</td>
+              <td className="px-4 py-2">2 Sets</td>
+              <td className="px-4 py-2 pr-10">5-6 Reps</td>
+            </tr>
+            <th className="bg-gray-300 text-black font-bold px-4 py-2" colspan="3">Isolation</th>
+            <tr className="skew-row">
+              <td className="px-4 py-2">Around-the-worlds</td>
+              <td className="px-4 py-2">2 sets</td>
+              <td className="px-4 py-2 pr-10">10-15 Reps</td>
+            </tr>
+            <tr className="skew-row">
+              <td className="px-4 py-2">L-Hang</td>
+              <td className="px-4 py-2">2 Sets</td>
+              <td className="px-4 py-2 pr-10">30-40 secs</td>
+            </tr>
+          </tbody>
+          <thead>
+            <th className="bg-white text-black font-bold px-4 py-2" colspan="3">Cardio</th>
+            <tr className='skew-row'>
+              <td className="px-4 py-2">Rowing</td>
+              <td className="px-4 py-2">Duration: 15 mins</td>
+            </tr>
+          </thead>
+          <tfoot>
+            <tr>
+              <td className="px-4 py-2" colSpan="3">
+                <p className="text-sm text-gray-400">Rest 3-4 minutes between sets. Focus on form and control. Aim for progressive overload.</p>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <br />
+        <h4 className='text-1xl text-left mb-4'>Week 5: ᚨ &rarr; ᛒ &rarr; ᚨ</h4>
+        <h4 className='text-1xl text-left mb-4'>Week 6: ᛒ &rarr; ᚨ &rarr; ᛒ</h4>
+      </div>
+    )
+  }
+];
+
+const ProgramCarousel = () => {
+  const [current, setCurrent] = useState(0);
+  const [showInfo, setShowInfo] = useState([false, false, false]);
+
+  const handleToggleInfo = idx => {
+    setShowInfo(info => info.map((v, i) => i === idx ? !v : v));
+  };
+
+  const prev = () => {
+    setCurrent(c => (c === 0 ? phases.length - 1 : c - 1));
+  };
+  
+  const next = () => {
+    setCurrent(c => (c === phases.length - 1 ? 0 : c + 1));
+  };
+
+  // Cross-fade animation variants
+  const fadeVariants = {
+    enter: {
+      opacity: 0,
+    },
+    center: {
+      opacity: 1,
+    },
+    exit: {
+      opacity: 0,
+    }
+  };
+
+  return (
+    <section id="program" className="bg-black text-white py-16 px-6">
+      <div className="max-w-6xl mx-auto flex flex-col items-center">
+        <h2 className="text-4xl md:text-6xl font-bold text-center mb-12 tracking-wide leading-relaxed">
+          Prepare for Battle. <br/>Forge the Weapon.
+        </h2>
+        <div className="w-full bg-[#18181b] rounded-xl shadow-lg p-8 text-center relative min-h-[350px]">
+          <div className="relative">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={current}
+                variants={fadeVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+                className="w-full"
+              >
+                <h2 className="text-4xl font-bold mb-4">{phases[current].title}</h2>
+                <p className="text-lg text-gray-300 mb-6 italic">{phases[current].description}</p>
+                <button
+                  className="mb-6 bg-white text-black font-semibold px-6 py-2 rounded-full transition duration-300 hover:bg-gray-200 hover:scale-105 hover:shadow-[0_0_16px_4px_rgba(255,85,0,0.5)]"
+                  onClick={() => handleToggleInfo(current)}
+                >
+                  {showInfo[current] ? "Conceal" : "Reveal"}
+                </button>
+                <AnimatePresence mode="wait">
+                  {showInfo[current] && (
+                    <motion.div
+                      key={current + "-table"}
+                      initial={{ height: 0, opacity: 0, y: -20 }}
+                      animate={{ height: "auto", opacity: 1, y: 0 }}
+                      exit={{ height: 0, opacity: 0, y: -20 }}
+                      transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                      className="overflow-hidden"
+                    >
+                      {phases[current].table}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+          <div className="flex justify-between mt-6">
+            <button
+              className="bg-gray-700 text-white px-4 py-2 rounded-full hover:bg-gray-600"
+              onClick={prev}
+            >
+              &laquo; 
+            </button>
+            <button
+              className="bg-gray-700 text-white px-4 py-2 rounded-full hover:bg-gray-600"
+              onClick={next}
+            >
+              &raquo;
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default ProgramCarousel;
+
+
+//forum section current code
+
+import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+
+function Forum() {
+  const [showTagDropdown, setShowTagDropdown] = useState(false);
+  const [tag, setTag] = useState("");
+  const [showComments, setShowComments] = useState(true);
+
+  return (
+    <section id="forum" className="bg-[#000] text-white py-16 px-6 overflow-hidden relative">
+      {/* Background image with opacity */}
+      <div 
+        className="absolute inset-0 opacity-20"
+        style={{
+          backgroundImage: 'url(/assets/forumbgr.png)',
+          backgroundSize: 'contain',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+		  animation: 'spin 60s linear infinite'
+        }}
+      ></div>
+
+      <div className="relative z-10 max-w-6xl mx-auto">
+        <h2 className="text-4xl md:text-6xl font-bold text-center mb-16 tracking-wide">
+          Warrior&apos;s Forum
+        </h2>
+
+        <p className="text-lg text-gray-300 text-center mb-16 max-w-4xl mx-auto leading-relaxed">
+          We&apos;d love your support. Share your experiences, your journey, your reviews about the program, advice for the devs and other users.
+        </p>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          {/* Left - Form */}
+          <div className="space-y-6">
+            <h3 className="text-2xl font-bold mb-6 text-left">Share Your Journey</h3>
+
+            <div className="space-y-4">
+              {/* Name Field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Name <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  className="w-full px-4 py-3 bg-[#18181b] border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent transition duration-300"
+                  placeholder="Enter your warrior name"
+                  required
+                />
+              </div>
+
+              {/* Email Field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Email <span className="text-gray-500">(optional)</span>
+                </label>
+                <input
+                  type="email"
+                  className="w-full px-4 py-3 bg-[#18181b] border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent transition duration-300"
+                  placeholder="your.email@example.com"
+                />
+              </div>
+
+              {/* Comment Type Dropdown */}
+              <div className="relative mb-4">
+                <label htmlFor="tag" className="block text-sm font-medium text-gray-300 mb-1">
+                  Tag
+                </label>
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setShowTagDropdown(prev => !prev)}
+                    className="w-full px-4 py-2 pr-4 border border-gray-600 bg-[#1e1e1e] text-white rounded-md shadow-sm text-left flex items-center justify-between"
+                  >
+                    <span>{tag || "Select a tag"}</span>
+                    <svg
+                      className={`w-4 h-4 transform transition-transform duration-300 ${showTagDropdown ? "rotate-180" : ""}`}
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+
+                  <AnimatePresence>
+                    {showTagDropdown && (
+                      <motion.ul
+                        key="dropdown"
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute z-10 w-full bg-[#2a2a2a] mt-1 border border-gray-600 rounded-md shadow-lg"
+                      >
+                        {["Feedback", "Advice", "Suggestion", "Other"].map(option => (
+                          <li
+                            key={option}
+                            onClick={() => {
+                              setTag(option);
+                              setShowTagDropdown(false);
+                            }}
+                            className="px-4 py-2 hover:bg-[#3a3a3a] cursor-pointer text-sm text-white"
+                          >
+                            {option}
+                          </li>
+                        ))}
+                      </motion.ul>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+
+              {/* Comment Text Area */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Your Message <span className="text-red-400">*</span>
+                </label>
+                <textarea
+                  rows="6"
+                  className="w-full px-4 py-3 bg-[#18181b] border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent transition duration-300 resize-vertical"
+                  placeholder="Share your thoughts, questions, or experiences with the Valhalla community..."
+                  required
+                ></textarea>
+              </div>
+
+              {/* Submit Button */}
+              <div className="flex justify-center">
+                <button className="w-1/3 bg-white text-black font-semibold py-3 px-6 rounded-lg transition duration-300 hover:bg-gray-200 hover:shadow-[0_0_16px_4px_rgba(255,0,0,0.6)]">
+                  Submit to Valhalla
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Right - Comments Section */}
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h3 className="text-2xl font-bold">Community Voices</h3>
+              <button
+                onClick={() => setShowComments(!showComments)}
+                className="bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition duration-300 flex items-center space-x-2"
+              >
+                <span>{showComments ? "Hide" : "Show"} Comments</span>
+                <svg
+                  className={`w-4 h-4 transform transition-transform duration-300 ${showComments ? "rotate-180" : ""}`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            </div>
+
+            <AnimatePresence>
+              {showComments && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                  className="overflow-hidden"
+                >
+                  <div className="space-y-4 max-h-120 overflow-y-auto custom-scrollbar">
+                    {/* Static Example Comments */}
+                    {[
+                      {
+                        name: "Thor_Warrior",
+                        tag: "Feedback",
+                        tagColor: "bg-blue-600",
+                        time: "2 hours ago",
+                        message:
+                          "Just completed Week 2 of The Mjolnir phase. The intensity is incredible! My deadlifts have improved significantly. Thanks for this amazing program!",
+                      },
+                      {
+                        name: "Valkyrie_Strong",
+                        tag: "Question",
+                        tagColor: "bg-green-600",
+                        time: "5 hours ago",
+                        message:
+                          "Quick question about the Gungnir phase - should I maintain the same weight throughout the giant sets or increase progressively?",
+                      },
+                      {
+                        name: "Odin_Lifter",
+                        tag: "Advice",
+                        tagColor: "bg-purple-600",
+                        time: "1 day ago",
+                        message:
+                          "Pro tip for beginners: Focus on form over weight in the first week. The muscle memory you build will pay dividends in later phases.",
+                      },
+                      {
+                        name: "Ragnar_Gym",
+                        tag: "Other",
+                        tagColor: "bg-gray-600",
+                        time: "2 days ago",
+                        message:
+                          "The Norse mythology theme really keeps me motivated during tough sessions. Feeling like a true warrior! Skål! 🔥",
+                      },
+                    ].map((comment, i) => (
+                      <div key={i} className="bg-[#18181b] p-4 rounded-lg border border-gray-700">
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="flex items-center space-x-2">
+                            <h4 className="font-semibold text-white">{comment.name}</h4>
+                            <span className={`text-xs ${comment.tagColor} text-white px-2 py-1 rounded-full`}>
+                              {comment.tag}
+                            </span>
+                          </div>
+                          <span className="text-xs text-gray-400">{comment.time}</span>
+                        </div>
+                        <p className="text-gray-300 text-sm">{comment.message}</p>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export default Forum;
+
+
+//Gate component code
+
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+
+const Gate = ({ onAuthenticated }) => {
+  const [passkey, setPasskey] = useState('');
+  const [isShaking, setIsShaking] = useState(false);
+  const [attempts, setAttempts] = useState(0);
+  const [showHint, setShowHint] = useState(false);
+
+  // The secret passkey - you can change this to whatever you want
+  const CORRECT_PASSKEY = "I AM WORTHY";
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    if (passkey.toUpperCase().trim() === CORRECT_PASSKEY) {
+      onAuthenticated();
+    } else {
+      // Wrong passkey - shake animation and increment attempts
+      setIsShaking(true);
+      setAttempts(prev => prev + 1);
+      setPasskey('');
+      
+      // Show hint after 2 failed attempts
+      if (attempts >= 1) {
+        setShowHint(true);
+      }
+      
+      // Remove shake animation after it completes
+      setTimeout(() => setIsShaking(false), 600);
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 1, ease: [0.4, 0, 0.2, 1] }}
+      className="fixed inset-0 z-50 flex flex-col justify-center items-center bg-black text-white"
+      style={{
+        backgroundImage: "url('/assets/gate-bg.jpg')", // You can add a gate background image
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      {/* Dark overlay */}
+      <div className="absolute inset-0 bg-black/70"></div>
+
+      {/* Content */}
+      <div className="relative z-10 text-center px-6 max-w-2xl mx-auto">
+        {/* Logo */}
+        <motion.img
+          initial={{ scale: 0, rotate: -180 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ duration: 1.2, ease: [0.4, 0, 0.2, 1] }}
+          src="/assets/valhalla-logo.png"
+          alt="Valhalla Gate"
+          className="w-32 h-32 mx-auto mb-8 animate-pulse"
+        />
+
+        {/* Title */}
+        <motion.h1
+          initial={{ y: 50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.5, duration: 0.8 }}
+          className="text-5xl md:text-7xl font-bold mb-6 tracking-wider leading-snug"
+        >
+        	PROJEKT VALHALLA
+        </motion.h1>
+
+        {/* Subtitle */}
+		<motion.p
+          initial={{ y: 30, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.8, duration: 0.8 }}
+          className="text-lg md:text-xl text-gray-300 mb-8 leading-relaxed"
+        >
+          FOR THE UNTAMED, ONLY THE WORTHY REMAIN.
+        </motion.p>
+
+        {/* Form */}
+        <motion.form
+          initial={{ y: 30, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 1.1, duration: 0.8 }}
+          onSubmit={handleSubmit}
+          className="space-y-6"
+        >
+          <div className="relative">
+            <motion.input
+              animate={isShaking ? {
+                x: [-10, 10, -10, 10, -5, 5, 0],
+                borderColor: ['#ef4444', '#dc2626', '#ef4444']
+              } : {}}
+              transition={{ duration: 0.6 }}
+              type="text"
+              value={passkey}
+              onChange={(e) => setPasskey(e.target.value)}
+              placeholder="Proclaim Thyself Worthy..."
+              className="w-full px-6 py-4 bg-black/50 border-2 border-gray-600 rounded-lg text-white text-center text-lg placeholder-gray-400 focus:outline-none focus:border-white focus:ring-2 focus:ring-white/20 transition-all duration-300 backdrop-blur-sm"
+              autoFocus
+            />
+          </div>
+
+          <motion.button
+            type="submit"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="w-full bg-white text-black font-bold py-4 px-8 rounded-lg text-lg transition-all duration-300 hover:bg-gray-200 hover:shadow-[0_0_30px_10px_rgba(255,255,255,0.3)] uppercase tracking-wider"
+          >
+            Enter Valhalla
+          </motion.button>
+        </motion.form>
+
+        {/* Hint */}
+        <AnimatePresence>
+          {showHint && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+              className="mt-8 p-4 bg-yellow-900/30 border border-yellow-600 rounded-lg backdrop-blur-sm"
+            >
+              <p className="text-yellow-200 text-sm">
+                <span className="font-semibold">Hint: </span>
+                What truth lies on the lips of the valiant?
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Decorative runes */}
+			<motion.div
+			initial={{ opacity: 0, y: 0 }}
+			animate={{ 
+			opacity: 0.6,
+			y: [0, -2000]
+			}}
+			transition={{ 
+			opacity: { delay: 1.5, duration: 1 },
+			y: { delay: 2.5, duration: 15, repeat: Infinity, ease: "linear" }
+			}}
+			className="absolute top-8 left-12 text-6xl text-white/20 font-bold select-none"
+		>
+			ᚠ
+		</motion.div>
+		<motion.div
+			initial={{ opacity: 0, y: 0 }}
+			animate={{ 
+			opacity: 0.6,
+			y: [0, -2000]
+			}}
+			transition={{ 
+			opacity: { delay: 1.7, duration: 1 },
+			y: { delay: 2.7, duration: 18, repeat: Infinity, ease: "linear" }
+			}}
+			className="absolute top-16 right-16 text-5xl text-white/20 font-bold select-none"
+		>
+			ᚦ
+		</motion.div>
+		<motion.div
+			initial={{ opacity: 0, y: 0 }}
+			animate={{ 
+			opacity: 0.6,
+			y: [0, -2000]
+			}}
+			transition={{ 
+			opacity: { delay: 1.9, duration: 1 },
+			y: { delay: 2.9, duration: 12, repeat: Infinity, ease: "linear" }
+			}}
+			className="absolute bottom-20 left-20 text-4xl text-white/20 font-bold select-none"
+		>
+			ᚱ
+		</motion.div>
+		<motion.div
+			initial={{ opacity: 0, y: 0 }}
+			animate={{ 
+			opacity: 0.6,
+			y: [0, -2000]
+			}}
+			transition={{ 
+			opacity: { delay: 2.1, duration: 1 },
+			y: { delay: 3.1, duration: 20, repeat: Infinity, ease: "linear" }
+			}}
+			className="absolute bottom-16 right-12 text-5xl text-white/20 font-bold select-none"
+		>
+			ᚴ
+		</motion.div>
+		<motion.div
+			initial={{ opacity: 0, y: 0 }}
+			animate={{ 
+			opacity: 0.6,
+			y: [0, -2000]
+			}}
+			transition={{ 
+			opacity: { delay: 2.3, duration: 1 },
+			y: { delay: 3.3, duration: 16, repeat: Infinity, ease: "linear" }
+			}}
+			className="absolute top-32 left-4 text-3xl text-white/20 font-bold select-none"
+		>
+			ᚼ
+		</motion.div>
+		<motion.div
+			initial={{ opacity: 0, y: 0 }}
+			animate={{ 
+			opacity: 0.6,
+			y: [0, -2000]
+			}}
+			transition={{ 
+			opacity: { delay: 2.5, duration: 1 },
+			y: { delay: 3.5, duration: 14, repeat: Infinity, ease: "linear" }
+			}}
+			className="absolute top-48 right-4 text-4xl text-white/20 font-bold select-none"
+		>
+			ᚾ
+		</motion.div>
+		<motion.div
+			initial={{ opacity: 0, y: 0 }}
+			animate={{ 
+			opacity: 0.6,
+			y: [0, -2000]
+			}}
+			transition={{ 
+			opacity: { delay: 2.7, duration: 1 },
+			y: { delay: 3.7, duration: 22, repeat: Infinity, ease: "linear" }
+			}}
+			className="absolute bottom-32 left-8 text-5xl text-white/20 font-bold select-none"
+		>
+			ᛁ
+		</motion.div>
+		<motion.div
+			initial={{ opacity: 0, y: 0 }}
+			animate={{ 
+			opacity: 0.6,
+			y: [0, -2000]
+			}}
+			transition={{ 
+			opacity: { delay: 2.9, duration: 1 },
+			y: { delay: 3.9, duration: 17, repeat: Infinity, ease: "linear" }
+			}}
+			className="absolute bottom-48 right-24 text-3xl text-white/20 font-bold select-none"
+		>
+			ᛅ
+		</motion.div>
+		<motion.div
+			initial={{ opacity: 0, y: 0 }}
+			animate={{ 
+			opacity: 0.6,
+			y: [0, -2000]
+			}}
+			transition={{ 
+			opacity: { delay: 3.1, duration: 1 },
+			y: { delay: 4.1, duration: 19, repeat: Infinity, ease: "linear" }
+			}}
+			className="absolute top-24 right-32 text-4xl text-white/20 font-bold select-none"
+		>
+			ᛋ
+		</motion.div>
+		<motion.div
+			initial={{ opacity: 0, y: 0 }}
+			animate={{ 
+			opacity: 0.6,
+			y: [0, -2000]
+			}}
+			transition={{ 
+			opacity: { delay: 3.3, duration: 1 },
+			y: { delay: 4.3, duration: 13, repeat: Infinity, ease: "linear" }
+			}}
+			className="absolute top-80 left-6 text-3xl text-white/20 font-bold select-none"
+		>
+			ᛏ
+		</motion.div>
+		<motion.div
+			initial={{ opacity: 0, y: 0 }}
+			animate={{ 
+			opacity: 0.6,
+			y: [0, -2000]
+			}}
+			transition={{ 
+			opacity: { delay: 3.5, duration: 1 },
+			y: { delay: 4.5, duration: 21, repeat: Infinity, ease: "linear" }
+			}}
+			className="absolute bottom-8 right-20 text-4xl text-white/20 font-bold select-none"
+		>
+			ᛒ
+		</motion.div>
+		<motion.div
+			initial={{ opacity: 0, y: 0 }}
+			animate={{ 
+			opacity: 0.6,
+			y: [0, -2000]
+			}}
+			transition={{ 
+			opacity: { delay: 3.7, duration: 1 },
+			y: { delay: 4.7, duration: 11, repeat: Infinity, ease: "linear" }
+			}}
+			className="absolute bottom-4 left-16 text-5xl text-white/20 font-bold select-none"
+		>
+			ᛚ
+		</motion.div>
+		<motion.div
+			initial={{ opacity: 0, y: 0 }}
+			animate={{ 
+			opacity: 0.6,
+			y: [0, -2000]
+			}}
+			transition={{ 
+			opacity: { delay: 3.9, duration: 1 },
+			y: { delay: 4.9, duration: 23, repeat: Infinity, ease: "linear" }
+			}}
+			className="absolute top-4 left-40 text-3xl text-white/20 font-bold select-none"
+		>
+			ᛘ
+		</motion.div>
+		<motion.div
+			initial={{ opacity: 0, y: 0 }}
+			animate={{ 
+			opacity: 0.6,
+			y: [0, -2000]
+			}}
+			transition={{ 
+			opacity: { delay: 4.1, duration: 1 },
+			y: { delay: 5.1, duration: 24, repeat: Infinity, ease: "linear" }
+			}}
+			className="absolute bottom-12 left-32 text-4xl text-white/20 font-bold select-none"
+		>
+			ᛦ
+		</motion.div>
+		<motion.div
+			initial={{ opacity: 0, y: 0 }}
+			animate={{ 
+			opacity: 0.6,
+			y: [0, -2000]
+			}}
+			transition={{ 
+			opacity: { delay: 4.3, duration: 1 },
+			y: { delay: 5.3, duration: 10, repeat: Infinity, ease: "linear" }
+			}}
+			className="absolute top-12 right-40 text-3xl text-white/20 font-bold select-none"
+		>
+			ᛯ
+		</motion.div>
+      </div>
+    </motion.div>
+  );
+};
+
+export default Gate;

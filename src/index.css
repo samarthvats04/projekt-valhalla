@@ -1,0 +1,59 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Metamorphous&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Metamorphous&family=Cinzel:wght@600&display=swap');
+
+
+@layer base {
+  h1, h2, h3, h4 {
+    font-family: 'Metamorphous', serif;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #000;
+}
+
+.skew-right {
+  background: #fff;
+  color: #000;
+  font-weight: bold;
+  padding: 0.75rem 2.5rem;
+  clip-path: polygon(0 0, 100% 0, 95% 100%, 0% 100%);
+  transition: background 0.3s, color 0.3s;
+}
+
+/* Table row style */
+.skew-row {
+  background: transparent;
+  color: #fff;
+  border-bottom: 1px solid #ffffffc9;
+  transition: background 0.3s, color 0.3s, clip-path 0.3s;
+}
+
+/* Hover effect for table row */
+.skew-row:hover td {
+  background: #ffffffc9;
+  color: #000;
+  transition: background 0.3s, color 0.3s, clip-path 0.3s;
+}
+
+.skew-row:hover td:last-child {
+  clip-path: polygon(0 0, 100% 0, 95% 100%, 0% 100%);
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.animate-spin-slow {
+  animation: spin-slow 10s linear infinite;
+}
