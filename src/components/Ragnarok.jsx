@@ -492,15 +492,43 @@ const Ragnarok = ({ onBack }) => {
       opacity: 0,
     }
   };
+  const backBtnVariants = {
+    initial: { width: 48, scale: 1.1 },
+    hover:   { width: 140, scale: 1.25, transition: { type: "spring", stiffness: 300, damping: 28 } }
+  };
 
+  const textVariants = {
+    initial: { x: -8, opacity: 0 },
+    hover:   { x: 0, opacity: 1, transition: { duration: 0.22, ease: "easeOut" } }
+  };
   return (
     <section className="scroll-mt-24 bg-black text-white py-8 sm:py-16 px-4 sm:px-6 min-h-screen">
-      <button
+
+      <motion.button
         onClick={onBack}
-        className="self-start mb-6 bg-white text-gray-700 px-3 py-3 rounded-full hover:bg-gray-400 transition-colors flex items-center justify-center w-12 h-12"
+        variants={backBtnVariants}
+        initial="initial"
+        whileHover="hover"
+        className="ml-8 mb-8 flex items-center gap-2 bg-white text-gray-800 rounded-full overflow-hidden shadow-md px-0"
+        style={{ minWidth: 48 }}
+        aria-label="Return to programs"
       >
-        <span className="material-icons text-lg sm:text-xl">chevron_left</span>
-      </button>
+        {/* icon container keeps icon centered when collapsed */}
+        <div className="flex items-center justify-center w-12 h-12 flex-shrink-0">
+          <span className="material-icons text-lg">chevron_left</span>
+        </div>
+
+        {/* sliding text (hidden when collapsed) */}
+        <motion.span
+          variants={textVariants}
+          className="whitespace-nowrap font-semibold text-sm sm:text-base pr-4"
+          style={{ pointerEvents: "none" }}
+        >
+          Return
+        </motion.span>
+      </motion.button>
+
+
       <div className="max-w-6xl mx-auto flex flex-col items-center">
         <h2 className="text-2xl sm:text-4xl md:text-6xl font-bold text-center mb-8 sm:mb-12 tracking-wide leading-relaxed px-2">
           Prepare for Battle. <br/>Forge the Weapon.
