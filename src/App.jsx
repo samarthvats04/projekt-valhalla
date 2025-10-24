@@ -7,6 +7,7 @@ import Ragnarok from './components/Ragnarok';
 import Forum from './components/Forum';
 import About from './components/About';
 import Footer from './components/Footer';
+import Programgrid from './components/Programgrid';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -33,8 +34,8 @@ function App() {
             {/* Hero Section */}
             <Hero />
 
-            {/* Ragnarok Program */}
-            <Ragnarok />
+            {/* Program Grid */}
+            <Programgrid />
 
             {/* Forum Section */}
             <Forum />

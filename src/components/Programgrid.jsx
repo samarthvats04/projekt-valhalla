@@ -1,127 +1,196 @@
-import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useState, useEffect } from 'react'
+import Ragnarok from './Ragnarok'
 
-const Programgrid = ({ onProgramSelect }) => {
-  // Program data
+const ProgramGrid = () => {
   const programs = [
     {
       id: 'ragnarok',
       title: 'Ragnarok',
-      description: 'The ultimate strength program',
-      image: '/path/to/ragnarok-runes.jpg', // Replace with your first image path
-      color: 'bg-black'
+      description: 'The ultimate battle for rebirth and strength',
+      image: '/assets/ᚱᚨᚷᚾᚨᚱᛟᚲBlackKing.png',
+      glowColor: 'rgba(56, 189, 248, 0.7)', // Blue glow for Ascension
+      borderGlow: 'rgba(56, 189, 248, 1)', // Deeper red for border
     },
     {
-      id: 'valhalla',
-      title: 'Valhalla',
-      description: 'Elite conditioning protocol',
-      image: '/path/to/valhalla-runes.jpg', // Replace with your second image path
-      color: 'bg-black'
+      id: 'berserkyr5',
+      title: 'Berserkyr 5',
+      description: 'Five moves of fury and power. Coming Soon!',
+      image: '/assets/BᛖᚱᛊᛖᚱᚲᛁᚱBlackKing.png',
+      glowColor: 'rgba(220, 38, 38, 0.7)', // Red glow for Ragnarok
+      borderGlow: 'rgba(220, 38, 38, 1)', // Deeper green for border
     },
     {
-      id: 'asgard',
-      title: 'Asgard',
-      description: 'Divine muscle building',
-      image: '/path/to/asgard-runes.jpg', // Replace with your third image path
-      color: 'bg-black'
+      id: 'ascension',
+      title: 'Ascension Protocol',
+      description: 'Rise above, transform within. Coming Soon!',
+      image: '/assets/ᚨᛊᚲᛖᚾᛊᛟᚾBlackKing.png',
+      glowColor: 'rgba(34, 197, 94, 0.7)', // Green glow for Berserkyr
+      borderGlow: 'rgba(34, 197, 94, 1)', // Deeper blue for border
     }
   ];
 
-  const cardVariants = {
-    initial: { scale: 1, y: 0 },
+  const [isMobile, setIsMobile] = useState(false);
+  const [selectedProgram, setSelectedProgram] = useState(null);
+  const [hoveredStates, setHoveredStates] = useState({});
+
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
+
+  const handleProgramClick = (programId) => {
+    if (programId === 'ragnarok') {
+      setSelectedProgram(programId);
+    }
+  };
+
+  const handleBackToGrid = () => {
+    setSelectedProgram(null);
+  };
+
+  // Create card variants with custom glow for each program
+  const getCardVariants = (glowColor) => ({
+    initial: { 
+      scale: 1,
+      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
+    },
     hover: { 
       scale: 1.05, 
-      y: -10,
-      transition: { duration: 0.3, ease: "easeOut" }
+      boxShadow: `0 20px 25px -5px ${glowColor}, 0 10px 10px -5px ${glowColor}`,
+      transition: { duration: 0.3, ease: "easeOut" } 
     }
+  });
+
+  const borderGlowVariants = {
+    initial: { opacity: 0 },
+    hover: { opacity: 1, transition: { duration: 0.3 } }
+  };
+
+  const overlayVariants = {
+    initial: { backgroundColor: "rgba(0,0,0,0.2)" },
+    hover: { backgroundColor: "rgba(0,0,0,0.7)", transition: { duration: 0.3 } }
   };
 
   const titleVariants = {
-    initial: { y: 0, opacity: 0 },
-    hover: { 
-      y: 10, 
-      opacity: 1,
-      transition: { duration: 0.3, ease: "easeOut" }
-    }
+    initial: { y: -100, opacity: 0 },
+    hover: { y: 0, opacity: 1, transition: { duration: 0.4, ease: "easeOut" } }
   };
 
-  const buttonVariants = {
-    initial: { opacity: 0, scale: 0 },
-    hover: { 
-      opacity: 1, 
-      scale: 1,
-      transition: { duration: 0.3, ease: "backOut" }
-    }
-  };
-
-  const handleProgramClick = (programId) => {
-    if (onProgramSelect) {
-      onProgramSelect(programId);
-    }
+  const descVariants = {
+    initial: { y: 100, opacity: 0 },
+    hover: { y: 0, opacity: 1, transition: { duration: 0.4, ease: "easeOut" } }
   };
 
   return (
-    <div className="min-h-screen bg-black text-white py-20 px-6">
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-5xl md:text-7xl font-bold text-center mb-4">
-          Choose Your Path
-        </h1>
-        <p className="text-xl text-gray-400 text-center mb-16">
-          Select a program to begin your transformation
-        </p>
-        
-        <div className="flex justify-center gap-30 max-w-6xl mx-auto">
-          {programs.map((program) => (
-            <motion.div
-              key={program.id}
-              className="relative group cursor-pointer"
-              variants={cardVariants}
-              initial="initial"
-              whileHover="hover"
-            >
-              {/* Card */}
-              <div className={`relative w-80 h-80 mx-auto border-4 border-white ${program.color} p-8 flex flex-col items-center justify-center overflow-hidden`}>
-                {/* Logo/Image */}
-                <div className="w-32 h-32 mb-4 flex items-center justify-center">
-                  <img 
-                    src={program.image} 
-                    alt={program.title}
-                    className="w-full h-full object-contain filter drop-shadow-lg"
-                  />
-                </div>
+    <AnimatePresence mode="wait">
+      {selectedProgram === 'ragnarok' ? (
+        <motion.div
+          key="ragnarok"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Ragnarok onBack={handleBackToGrid} />
+        </motion.div>
+      ) : (
+        <motion.section
+          key="grid"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5 }}
+          id="program" 
+          className="min-h-screen bg-black text-white py-20 px-6"
+        >
+          <div className="max-w-6xl mx-auto">
+            <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold text-center mb-4">
+              Choose Your Path
+            </h1>
+            <p className="text-lg md:text-xl text-gray-400 text-center mb-8 md:mb-16">
+              Select a program to begin your transformation
+            </p>
+            
+            <div className="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-18">
+              {programs.map((program) => {
+                const isHovered = hoveredStates[program.id] || false;
+                const effectiveHovered = isMobile ? true : isHovered;
                 
-                {/* Description */}
-                <p className="text-lg text-center text-white/80 mb-6">
-                  {program.description}
-                </p>
-                
-                {/* Button - appears on hover */}
-                <motion.button
-                  variants={buttonVariants}
-                  initial="initial"
-                  whileHover="hover"
-                  onClick={() => handleProgramClick(program.id)}
-                  className="absolute bottom-8 bg-white text-black px-6 py-3 font-bold hover:bg-gray-200 transition-colors shadow-lg"
-                >
-                  Enter Program
-                </motion.button>
-              </div>
-              
-              {/* Title - slides out on hover */}
-              <motion.div
-                variants={titleVariants}
-                initial="initial"
-                whileHover="hover"
-                className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-white text-black px-6 py-2 font-bold text-xl shadow-lg"
-              >
-                {program.title}
-              </motion.div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </div>
+                return (
+                  <motion.div
+                    key={program.id}
+                    className="relative group cursor-pointer w-full max-w-80 md:w-auto mb-8 md:mb-0"
+                    variants={getCardVariants(program.glowColor)}
+                    initial="initial"
+                    animate={effectiveHovered ? "hover" : "initial"}
+                    onMouseEnter={() => !isMobile && setHoveredStates(prev => ({ ...prev, [program.id]: true }))}
+                    onMouseLeave={() => !isMobile && setHoveredStates(prev => ({ ...prev, [program.id]: false }))}
+                    onClick={() => handleProgramClick(program.id)}
+                  >
+                    {/* Border glow - MOVED OUTSIDE the inner container */}
+                    <motion.div
+                      variants={borderGlowVariants}
+                      initial="initial"
+                      animate={effectiveHovered ? "hover" : "initial"}
+                      className="absolute -bottom-1 left-0 w-full h-2 z-30"
+                      style={{ 
+                        background: `linear-gradient(90deg, transparent, ${program.borderGlow}, transparent)`,
+                        filter: "blur(8px)",
+                        boxShadow: `0 0 20px 5px ${program.glowColor}`
+                      }}
+                    />
+                    
+                    <div
+                      className="relative w-80 h-80 max-w-full aspect-square mx-auto border-4 border-white overflow-hidden flex items-center justify-center bg-cover bg-center bg-no-repeat"
+                      style={{
+                        backgroundImage: `url(${program.image})`
+                      }}
+                    >
+                      {/* Darken overlay on hover */}
+                      <motion.div
+                        variants={overlayVariants}
+                        initial="initial"
+                        animate={effectiveHovered ? "hover" : "initial"}
+                        className="absolute inset-0 z-10"
+                      />
+                      
+                      {/* Title slides from top */}
+                      <motion.div
+                        variants={titleVariants}
+                        initial="initial"
+                        animate={effectiveHovered ? "hover" : "initial"}
+                        className="absolute top-8 left-1/2 transform -translate-x-1/2 text-white text-2xl md:text-3xl text-center z-20"
+                        style={{ fontFamily: 'Metamorphous, serif' }}
+                      >
+                        {program.title}
+                      </motion.div>
+                      
+                      {/* Description slides from bottom */}
+                      <motion.div
+                        variants={descVariants}
+                        initial="initial"
+                        animate={effectiveHovered ? "hover" : "initial"}
+                        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white px-4 md:px-6 py-2 text-base md:text-lg text-center rounded z-20"
+                      >
+                        {program.description}
+                      </motion.div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
+        </motion.section>
+      )}
+    </AnimatePresence>
   );
 };
 
-export default Programgrid;
+export default ProgramGrid;

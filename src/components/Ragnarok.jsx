@@ -464,7 +464,7 @@ const phases = [
   }
 ];
 
-const Ragnarok = () => {
+const Ragnarok = ({ onBack }) => {
   const [current, setCurrent] = useState(0);
   const [showInfo, setShowInfo] = useState([false, false, false]);
 
@@ -494,7 +494,13 @@ const Ragnarok = () => {
   };
 
   return (
-    <section id="program" className="scroll-mt-24 bg-black text-white py-8 sm:py-16 px-4 sm:px-6">
+    <section className="scroll-mt-24 bg-black text-white py-8 sm:py-16 px-4 sm:px-6 min-h-screen">
+      <button
+        onClick={onBack}
+        className="self-start mb-6 bg-white text-gray-700 px-3 py-3 rounded-full hover:bg-gray-400 transition-colors flex items-center justify-center w-12 h-12"
+      >
+        <span className="material-icons text-lg sm:text-xl">chevron_left</span>
+      </button>
       <div className="max-w-6xl mx-auto flex flex-col items-center">
         <h2 className="text-2xl sm:text-4xl md:text-6xl font-bold text-center mb-8 sm:mb-12 tracking-wide leading-relaxed px-2">
           Prepare for Battle. <br/>Forge the Weapon.
