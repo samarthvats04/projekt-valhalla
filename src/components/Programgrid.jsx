@@ -115,7 +115,7 @@ const ProgramGrid = () => {
               Choose Your Path
             </h1>
             <p className="text-lg md:text-xl text-gray-400 text-center mb-8 md:mb-16">
-              Select a program to begin your transformation
+              The path you choose defines your fate. Select a program to embark on your journey.
             </p>
             
             <div className="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-18">
