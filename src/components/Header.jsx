@@ -88,7 +88,7 @@ function Header() {
           {/* Desktop Nav Links */}
           <nav className="flex space-x-8 lg:space-x-12 xl:space-x-15 text-sm lg:text-base text-gray-400 font-semibold">
             <button 
-              onClick={() => handleNavClick('#program')}
+              onClick={() => handleNavClick('#programgrid')}
               className="hover:text-white hover:scale-110 transition-all duration-300 ease-in-out focus:outline-none focus:text-white"
             >
               Program
@@ -116,7 +116,7 @@ function Header() {
         >
           <nav className="pt-4 pb-2 space-y-4 border-t border-gray-700 mt-4">
             <button
-              onClick={() => handleNavClick('#program')}
+              onClick={() => handleNavClick('#programgrid')}
               className="block w-full text-left text-gray-400 hover:text-white transition-colors duration-300 font-semibold py-2 px-2 rounded hover:bg-gray-800"
             >
               Program

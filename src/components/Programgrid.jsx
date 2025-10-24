@@ -89,107 +89,109 @@ const ProgramGrid = () => {
   };
 
   return (
-    <AnimatePresence mode="wait">
-      {selectedProgram === 'ragnarok' ? (
-        <motion.div
-          key="ragnarok"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Ragnarok onBack={handleBackToGrid} />
-        </motion.div>
-      ) : (
-        <motion.section
-          key="grid"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
-          id="program" 
-          className="min-h-screen bg-black text-white py-20 px-6"
-        >
-          <div className="max-w-6xl mx-auto">
-            <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold text-center mb-4">
-              Choose Your Path
-            </h1>
-            <p className="text-lg md:text-xl text-gray-400 text-center mb-8 md:mb-16">
-              The path you choose defines your fate. Select a program to embark on your journey.
-            </p>
-            
-            <div className="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-18">
-              {programs.map((program) => {
-                const isHovered = hoveredStates[program.id] || false;
-                const effectiveHovered = isMobile ? true : isHovered;
-                
-                return (
-                  <motion.div
-                    key={program.id}
-                    className="relative group cursor-pointer w-full max-w-80 md:w-auto mb-8 md:mb-0"
-                    variants={getCardVariants(program.glowColor)}
-                    initial="initial"
-                    animate={effectiveHovered ? "hover" : "initial"}
-                    onMouseEnter={() => !isMobile && setHoveredStates(prev => ({ ...prev, [program.id]: true }))}
-                    onMouseLeave={() => !isMobile && setHoveredStates(prev => ({ ...prev, [program.id]: false }))}
-                    onClick={() => handleProgramClick(program.id)}
-                  >
-                    {/* Border glow - MOVED OUTSIDE the inner container */}
+    <div id="programgrid" className="scroll-mt-20">
+      <AnimatePresence mode="wait">
+        {selectedProgram === 'ragnarok' ? (
+          <motion.div
+            key="ragnarok"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Ragnarok onBack={handleBackToGrid} />
+          </motion.div>
+        ) : (
+          <motion.section
+            key="grid"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            id="program" 
+            className="min-h-screen bg-black text-white py-20 px-6"
+          >
+            <div className="max-w-6xl mx-auto">
+              <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold text-center mb-4">
+                Choose Your Path
+              </h1>
+              <p className="text-lg md:text-xl text-gray-400 text-center mb-8 md:mb-16">
+                The path you choose defines your fate. Select a program to embark on your journey.
+              </p>
+              
+              <div className="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-18">
+                {programs.map((program) => {
+                  const isHovered = hoveredStates[program.id] || false;
+                  const effectiveHovered = isMobile ? true : isHovered;
+                  
+                  return (
                     <motion.div
-                      variants={borderGlowVariants}
+                      key={program.id}
+                      className="relative group cursor-pointer w-full max-w-80 md:w-auto mb-8 md:mb-0"
+                      variants={getCardVariants(program.glowColor)}
                       initial="initial"
                       animate={effectiveHovered ? "hover" : "initial"}
-                      className="absolute -bottom-1 left-0 w-full h-2 z-30"
-                      style={{ 
-                        background: `linear-gradient(90deg, transparent, ${program.borderGlow}, transparent)`,
-                        filter: "blur(8px)",
-                        boxShadow: `0 0 20px 5px ${program.glowColor}`
-                      }}
-                    />
-                    
-                    <div
-                      className="relative w-80 h-80 max-w-full aspect-square mx-auto border-4 border-white overflow-hidden flex items-center justify-center bg-cover bg-center bg-no-repeat"
-                      style={{
-                        backgroundImage: `url(${program.image})`
-                      }}
+                      onMouseEnter={() => !isMobile && setHoveredStates(prev => ({ ...prev, [program.id]: true }))}
+                      onMouseLeave={() => !isMobile && setHoveredStates(prev => ({ ...prev, [program.id]: false }))}
+                      onClick={() => handleProgramClick(program.id)}
                     >
-                      {/* Darken overlay on hover */}
+                      {/* Border glow - MOVED OUTSIDE the inner container */}
                       <motion.div
-                        variants={overlayVariants}
+                        variants={borderGlowVariants}
                         initial="initial"
                         animate={effectiveHovered ? "hover" : "initial"}
-                        className="absolute inset-0 z-10"
+                        className="absolute -bottom-1 left-0 w-full h-2 z-30"
+                        style={{ 
+                          background: `linear-gradient(90deg, transparent, ${program.borderGlow}, transparent)`,
+                          filter: "blur(8px)",
+                          boxShadow: `0 0 20px 5px ${program.glowColor}`
+                        }}
                       />
                       
-                      {/* Title slides from top */}
-                      <motion.div
-                        variants={titleVariants}
-                        initial="initial"
-                        animate={effectiveHovered ? "hover" : "initial"}
-                        className="absolute top-8 left-1/2 transform -translate-x-1/2 text-white text-2xl md:text-3xl text-center z-20"
-                        style={{ fontFamily: 'Metamorphous, serif' }}
+                      <div
+                        className="relative w-80 h-80 max-w-full aspect-square mx-auto border-4 border-white overflow-hidden flex items-center justify-center bg-cover bg-center bg-no-repeat"
+                        style={{
+                          backgroundImage: `url(${program.image})`
+                        }}
                       >
-                        {program.title}
-                      </motion.div>
-                      
-                      {/* Description slides from bottom */}
-                      <motion.div
-                        variants={descVariants}
-                        initial="initial"
-                        animate={effectiveHovered ? "hover" : "initial"}
-                        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white px-4 md:px-6 py-2 text-base md:text-lg text-center rounded z-20"
-                      >
-                        {program.description}
-                      </motion.div>
-                    </div>
-                  </motion.div>
-                );
-              })}
+                        {/* Darken overlay on hover */}
+                        <motion.div
+                          variants={overlayVariants}
+                          initial="initial"
+                          animate={effectiveHovered ? "hover" : "initial"}
+                          className="absolute inset-0 z-10"
+                        />
+                        
+                        {/* Title slides from top */}
+                        <motion.div
+                          variants={titleVariants}
+                          initial="initial"
+                          animate={effectiveHovered ? "hover" : "initial"}
+                          className="absolute top-8 left-1/2 transform -translate-x-1/2 text-white text-2xl md:text-3xl text-center z-20"
+                          style={{ fontFamily: 'Metamorphous, serif' }}
+                        >
+                          {program.title}
+                        </motion.div>
+                        
+                        {/* Description slides from bottom */}
+                        <motion.div
+                          variants={descVariants}
+                          initial="initial"
+                          animate={effectiveHovered ? "hover" : "initial"}
+                          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white px-4 md:px-6 py-2 text-base md:text-lg text-center rounded z-20"
+                        >
+                          {program.description}
+                        </motion.div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        </motion.section>
-      )}
-    </AnimatePresence>
+          </motion.section>
+        )}
+      </AnimatePresence>
+    </div>
   );
 };
 

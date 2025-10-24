@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Gate from './components/Gate';
 import Header from './components/Header'
 import Hero from './components/Hero';
-import Ragnarok from './components/Ragnarok';
 import Forum from './components/Forum';
 import About from './components/About';
 import Footer from './components/Footer';

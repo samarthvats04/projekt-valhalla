@@ -3,7 +3,7 @@ import React from 'react';
 
 function HeroSection() {
   const handleExploreClick = () => {
-    const programSection = document.getElementById("program");
+    const programSection = document.getElementById("programgrid");
     programSection?.scrollIntoView({ behavior: "smooth" });
   };
 
