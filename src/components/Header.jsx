@@ -91,7 +91,7 @@ function Header() {
               onClick={() => handleNavClick('#programgrid')}
               className="hover:text-white hover:scale-110 transition-all duration-300 ease-in-out focus:outline-none focus:text-white"
             >
-              Program
+              Programs
             </button>
             <button 
               onClick={() => handleNavClick('#forum')}
@@ -119,7 +119,7 @@ function Header() {
               onClick={() => handleNavClick('#programgrid')}
               className="block w-full text-left text-gray-400 hover:text-white transition-colors duration-300 font-semibold py-2 px-2 rounded hover:bg-gray-800"
             >
-              Program
+              Programs
             </button>
             <button
               onClick={() => handleNavClick('#forum')}
