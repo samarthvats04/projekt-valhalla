@@ -279,17 +279,90 @@ function Forum() {
   }, []);
 
   return (
-    <section id="forum" className="bg-[#000] scroll-mt-24 text-white py-8 sm:py-12 md:py-16 px-4 sm:px-6">
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-3 sm:mb-4 tracking-wide">
+    <section id="forum" className="bg-[#000] text-white scroll-mt-24 py-8 sm:py-12 md:py-16 px-4 sm:px-6 relative overflow-hidden">
+      {/* Corner spinning images with overlay */}
+      <div className="absolute inset-0 pointer-events-none z-0">
+        {/* Dark overlay */}
+        <div className="absolute inset-0 bg-black/60"></div>
+        
+        {/* Top Left - Counter-clockwise */}
+        <div className="absolute -top-1/2 -left-1/2 w-full h-full">
+          <img 
+            src="/assets/forumspin.png" 
+            alt="" 
+            className="w-full h-full object-contain animate-spin-slow-ccw opacity-30"
+            style={{ animationDuration: '45s' }}
+          />
+        </div>
+        
+        {/* Top Right - Clockwise */}
+        <div className="absolute -top-1/2 -right-1/2 w-full h-full">
+          <img 
+            src="/assets/forumspin.png" 
+            alt="" 
+            className="w-full h-full object-contain animate-spin-slow-cw opacity-30"
+            style={{ animationDuration: '45s' }}
+          />
+        </div>
+        
+        {/* Bottom Left - Counter-clockwise */}
+        <div className="absolute -bottom-1/2 -left-1/2 w-full h-full">
+          <img 
+            src="/assets/forumspin.png" 
+            alt="" 
+            className="w-full h-full object-contain animate-spin-slow-ccw opacity-30"
+            style={{ animationDuration: '45s' }}
+          />
+        </div>
+        
+        {/* Bottom Right - Clockwise */}
+        <div className="absolute -bottom-1/2 -right-1/2 w-full h-full">
+          <img 
+            src="/assets/forumspin.png" 
+            alt="" 
+            className="w-full h-full object-contain animate-spin-slow-cw opacity-30"
+            style={{ animationDuration: '45s' }}
+          />
+        </div>
+      </div>
+
+      {/* Keyframes for animations */}
+      <style>{`
+        @keyframes spin-slow-cw {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+        
+        @keyframes spin-slow-ccw {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(-360deg);
+          }
+        }
+        
+        .animate-spin-slow-cw {
+          animation: spin-slow-cw linear infinite;
+        }
+        
+        .animate-spin-slow-ccw {
+          animation: spin-slow-ccw linear infinite;
+        }
+      `}</style>
+
+      <div className="max-w-6xl mx-auto relative z-10">
+        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-3 sm:mb-4 tracking-wide">
           Hall of Echoes
-        </h1>
-        <br />
+        </h2>
         <p className="text-base sm:text-lg text-gray-300 text-center mb-6 sm:mb-8 px-2">
           Share your battles, your victories, your feedback.<br className="hidden sm:block" />
           Your experience shapes what we build next. Real talk only.
         </p>
-        <br />
 
         {/* Create Thread Button */}
         <div className="flex justify-center mb-6 sm:mb-8">
@@ -327,7 +400,7 @@ function Forum() {
             </div>
           ) : filteredThreads.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-gray-400">No threads yet. Be the first to create one!</p><br />
+              <p className="text-gray-400">No threads yet. Be the first to create one!</p>
             </div>
           ) : (
             <div 
