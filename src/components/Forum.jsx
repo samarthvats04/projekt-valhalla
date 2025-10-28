@@ -1,28 +1,36 @@
-import { useState, useEffect } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { supabase } from "../lib/supabase";
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '../lib/supabase';
 
 function Forum() {
-  const [showTagDropdown, setShowTagDropdown] = useState(false);
-  const [tag, setTag] = useState("");
-  const [showComments, setShowComments] = useState(true);
-  const [posts, setPosts] = useState([]);
+  const [selectedThread, setSelectedThread] = useState(null);
+  const [activeCategory, setActiveCategory] = useState("All");
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [threads, setThreads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   
-  // Form data
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    message: ""
+    title: '',
+    content: '',
+    category: '',
+    author: ''
   });
+  
+  const [formErrors, setFormErrors] = useState({});
+  const [replyContent, setReplyContent] = useState('');
+  const [replyAuthor, setReplyAuthor] = useState('');
+  const [submittingReply, setSubmittingReply] = useState(false);
+
+  const categories = ["All", "Progress Reports", "Technique & Form", "Nutrition", "Success Stories", "General Discussion"];
 
   // Test database connection
   const testConnection = async () => {
     try {
       console.log('Testing database connection...');
-      const { data, error, count } = await supabase
-        .from('forum_details')
+      const { error, count } = await supabase
+        .from('forum_threads')
         .select('*', { count: 'exact', head: true });
       
       if (error) {
@@ -35,71 +43,142 @@ function Forum() {
     }
   };
 
-  // Fetch posts from Supabase
-  const fetchPosts = async () => {
+  // Fetch threads from Supabase
+  const fetchThreads = async () => {
     try {
-      console.log('Fetching posts...');
+      console.log('Fetching threads...');
       setLoading(true);
       
       const { data, error } = await supabase
-        .from('forum_details')
+        .from('forum_threads')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('last_activity', { ascending: false });
       
       if (error) {
-        console.error('Error fetching posts:', error);
+        console.error('Error fetching threads:', error);
         throw error;
       }
       
-      console.log('Posts fetched successfully:', data);
-      setPosts(data || []);
+      console.log('Threads fetched successfully:', data);
+      setThreads(data || []);
     } catch (error) {
-      console.error('Fetch posts error:', error);
-      alert('Error loading posts: ' + error.message);
+      console.error('Fetch threads error:', error);
+      alert('Error loading threads: ' + error.message);
     } finally {
       setLoading(false);
     }
   };
 
-  // Submit new post
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // Fetch replies for a specific thread
+  const fetchReplies = async (threadId) => {
+    try {
+      const { data, error } = await supabase
+        .from('forum_replies')
+        .select('*')
+        .eq('thread_id', threadId)
+        .order('created_at', { ascending: true });
+      
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching replies:', error);
+      return [];
+    }
+  };
+
+  // Handle thread selection and load replies
+  const handleThreadClick = async (thread) => {
+    try {
+      // Increment view count
+      const { error: updateError } = await supabase
+        .from('forum_threads')
+        .update({ views: thread.views + 1 })
+        .eq('id', thread.id);
+      
+      if (updateError) {
+        console.error('Error updating views:', updateError);
+      }
+
+      // Fetch replies
+      const replies = await fetchReplies(thread.id);
+      
+      // Update local state with incremented views
+      const updatedThread = { ...thread, views: thread.views + 1, posts: replies };
+      setSelectedThread(updatedThread);
+      
+      // Update the thread in the threads list
+      setThreads(prevThreads => 
+        prevThreads.map(t => t.id === thread.id ? { ...t, views: t.views + 1 } : t)
+      );
+    } catch (error) {
+      console.error('Error handling thread click:', error);
+      // Still show the thread even if view update fails
+      const replies = await fetchReplies(thread.id);
+      setSelectedThread({ ...thread, posts: replies });
+    }
+  };
+
+  const validateForm = () => {
+    const errors = {};
     
+    if (!formData.author.trim()) {
+      errors.author = "Author name is required";
+    }
+    
+    if (!formData.title.trim() || formData.title.trim().length < 5) {
+      errors.title = "Title must be at least 5 characters";
+    } else if (formData.title.length > 100) {
+      errors.title = "Title must be less than 100 characters";
+    }
+    
+    if (!formData.content.trim() || formData.content.trim().length < 20) {
+      errors.content = "Content must be at least 20 characters";
+    } else if (formData.content.length > 2000) {
+      errors.content = "Content must be less than 2000 characters";
+    }
+    
+    if (!formData.category) {
+      errors.category = "Please select a category";
+    }
+    
+    return errors;
+  };
+
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    if (formErrors[field]) {
+      setFormErrors(prev => ({ ...prev, [field]: undefined }));
+    }
+  };
+
+  const handleSubmitThread = async () => {
     console.log('Form submission started');
-    console.log('Form data:', formData);
-    console.log('Selected tag:', tag);
     
-    // Validation
-    if (!formData.name.trim()) {
-      alert('Please enter your name');
-      return;
-    }
-    
-    if (!formData.message.trim()) {
-      alert('Please enter a message');
-      return;
-    }
-    
-    if (!tag) {
-      alert('Please select a tag');
+    // Validate form
+    const errors = validateForm();
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
       return;
     }
 
     setSubmitting(true);
     
     try {
-      const postData = {
-        name: formData.name.trim() || 'AnonUser',
-        email: formData.email.trim() || '',
-        tag: tag,
-        comment: formData.message.trim()
+      const threadData = {
+        title: formData.title.trim(),
+        author: formData.author.trim(),
+        content: formData.content.trim(),
+        category: formData.category,
+        replies: 0,
+        views: 0,
+        last_activity: new Date().toISOString()
       };
       
-      console.log('Submitting post data:', postData);
+      console.log('Submitting thread data:', threadData);
       
       const { data, error } = await supabase
-        .from('forum_details')
-        .insert([postData])
+        .from('forum_threads')
+        .insert([threadData])
         .select();
       
       if (error) {
@@ -107,30 +186,75 @@ function Forum() {
         throw error;
       }
       
-      console.log('Post submitted successfully:', data);
+      console.log('Thread submitted successfully:', data);
 
       // Reset form
-      setFormData({ name: "", email: "", message: "" });
-      setTag("");
+      setFormData({ title: '', content: '', category: '', author: '' });
+      setFormErrors({});
+      setShowCreateForm(false);
       
-      // Refresh posts
-      await fetchPosts();
+      // Refresh threads
+      await fetchThreads();
       
-      alert('Your post has been submitted successfully!');
+      alert('Your thread has been created successfully!');
     } catch (error) {
-      console.error('Submit error details:', {
-        message: error.message,
-        details: error.details,
-        hint: error.hint,
-        code: error.code
-      });
-      alert('Error submitting your post: ' + error.message);
+      console.error('Submit error details:', error);
+      alert('Error creating thread: ' + error.message);
     } finally {
       setSubmitting(false);
     }
   };
 
-  // Format time difference
+  const handleSubmitReply = async () => {
+    if (!replyAuthor.trim() || !replyContent.trim()) {
+      alert('Please enter your name and a reply');
+      return;
+    }
+
+    if (!selectedThread) return;
+
+    setSubmittingReply(true);
+    
+    try {
+      const replyData = {
+        thread_id: selectedThread.id,
+        author: replyAuthor.trim(),
+        content: replyContent.trim()
+      };
+      
+      const { error } = await supabase
+        .from('forum_replies')
+        .insert([replyData]);
+      
+      if (error) throw error;
+
+      // Update thread reply count and last activity
+      const { error: updateError } = await supabase
+        .from('forum_threads')
+        .update({ 
+          replies: selectedThread.replies + 1,
+          last_activity: new Date().toISOString()
+        })
+        .eq('id', selectedThread.id);
+      
+      if (updateError) throw updateError;
+
+      // Refresh replies and threads
+      const replies = await fetchReplies(selectedThread.id);
+      setSelectedThread(prev => ({ ...prev, posts: replies, replies: prev.replies + 1 }));
+      setReplyContent('');
+      setReplyAuthor('');
+      await fetchThreads();
+      
+      alert('Reply posted successfully!');
+    } catch (error) {
+      console.error('Error posting reply:', error);
+      alert('Error posting reply: ' + error.message);
+    } finally {
+      setSubmittingReply(false);
+    }
+  };
+
   const getTimeAgo = (timestamp) => {
     const now = new Date();
     const postTime = new Date(timestamp);
@@ -144,228 +268,378 @@ function Forum() {
     return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
   };
 
-  // Get tag color
-  const getTagColor = (tagName) => {
-    const colors = {
-      'Feedback': 'bg-blue-600',
-      'Advice': 'bg-purple-600',
-      'Suggestion': 'bg-green-600',
-      'Other': 'bg-gray-600'
-    };
-    return colors[tagName] || 'bg-gray-600';
-  };
+  const filteredThreads = activeCategory === "All" 
+    ? threads 
+    : threads.filter(thread => thread.category === activeCategory);
 
   useEffect(() => {
     console.log('Forum component mounted');
     testConnection();
-    fetchPosts();
+    fetchThreads();
   }, []);
 
   return (
-    <section id="forum" className="scroll-mt-24 bg-[#000] text-white py-8 sm:py-12 md:py-16 px-4 sm:px-6 overflow-hidden relative">
-      {/* Background image with opacity */}
-      <div 
-        className="absolute inset-0 opacity-30 sm:opacity-15 md:opacity-20"
-        style={{
-          backgroundImage: 'url(/assets/forumbgr.png)',
-          backgroundSize: 'contain',
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'center',
-          animation: 'spin 60s linear infinite'
-        }}
-      ></div>
-
-      <div className="relative z-10 max-w-6xl mx-auto">
-        {/* Title - Responsive sizing */}
-        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-8 sm:mb-12 md:mb-16 tracking-wide">
-          Warrior&apos;s Forum
-        </h2>
-
-        {/* Description - Responsive sizing and margins */}
-        <p className="text-base sm:text-lg text-gray-300 text-center mb-8 sm:mb-12 md:mb-16 max-w-4xl mx-auto leading-relaxed px-2 sm:px-0">
-          This is where warriors gather. Share your battles, your victories, your feedback.<br className="hidden sm:block"/> Your experience shapes what we build next. Real talk only.
+    <section id="forum" className="bg-[#000] scroll-mt-24 text-white py-8 sm:py-12 md:py-16 px-4 sm:px-6">
+      <div className="max-w-6xl mx-auto">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-3 sm:mb-4 tracking-wide">
+          Hall of Echoes
+        </h1>
+        <br />
+        <p className="text-base sm:text-lg text-gray-300 text-center mb-6 sm:mb-8 px-2">
+          Share your battles, your victories, your feedback.<br className="hidden sm:block" />
+          Your experience shapes what we build next. Real talk only.
         </p>
+        <br />
 
-        {/* Main content - Stack on mobile, side by side on desktop */}
-        <div className="flex flex-col lg:grid lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-12">
-          
-          {/* Form Section - Full width on mobile */}
-          <div className="order-1 lg:order-1 space-y-4 sm:space-y-6">
-            <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-left">Share Your Journey</h3>
+        {/* Create Thread Button */}
+        <div className="flex justify-center mb-6 sm:mb-8">
+          <button
+            onClick={() => setShowCreateForm(true)}
+            className="bg-white text-black font-semibold px-6 sm:px-8 py-2.5 sm:py-3 rounded-full hover:bg-gray-200 transition duration-300 text-sm sm:text-base"
+          >
+            + Create New Thread
+          </button>
+        </div>
 
-            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
-              {/* Name Field */}
-              <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1 sm:mb-2">
-                  Name <span className="text-red-400">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-[#18181b] border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent transition duration-300 text-sm sm:text-base"
-                  placeholder="Enter your warrior name"
-                  required
-                  disabled={submitting}
-                />
-              </div>
+        {/* Category Filter */}
+        <div className="flex flex-wrap gap-2 sm:gap-3 justify-center mb-6 sm:mb-8 px-2">
+          {categories.map((category) => (
+            <button
+              key={category}
+              onClick={() => setActiveCategory(category)}
+              className={`px-3 sm:px-6 py-1.5 sm:py-2 rounded-full font-semibold transition-all duration-300 text-xs sm:text-base ${
+                activeCategory === category
+                  ? 'bg-white text-black'
+                  : 'bg-[#18181b] text-gray-300 hover:bg-[#27272a]'
+              }`}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
 
-              {/* Email Field */}
-              <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1 sm:mb-2">
-                  Email <span className="text-gray-500">(optional)</span>
-                </label>
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                  className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-[#18181b] border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent transition duration-300 text-sm sm:text-base"
-                  placeholder="your.email@example.com"
-                  disabled={submitting}
-                />
-              </div>
-
-              {/* Tag Dropdown */}
-              <div className="relative mb-3 sm:mb-4">
-                <label htmlFor="tag" className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
-                  Tag <span className="text-red-400">*</span>
-                </label>
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => !submitting && setShowTagDropdown(prev => !prev)}
-                    disabled={submitting}
-                    className="w-full px-3 sm:px-4 py-2 pr-4 border border-gray-600 bg-[#1e1e1e] text-white rounded-md shadow-sm text-left flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
-                  >
-                    <span>{tag || "Select a tag"}</span>
-                    <svg
-                      className={`w-4 h-4 transform transition-transform duration-300 ${showTagDropdown ? "rotate-180" : ""}`}
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-
-                  <AnimatePresence>
-                    {showTagDropdown && !submitting && (
-                      <motion.ul
-                        key="dropdown"
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        transition={{ duration: 0.2 }}
-                        className="absolute z-10 w-full bg-[#2a2a2a] mt-1 border border-gray-600 rounded-md shadow-lg"
-                      >
-                        {["Feedback", "Advice", "Suggestion", "Other"].map(option => (
-                          <li
-                            key={option}
-                            onClick={() => {
-                              setTag(option);
-                              setShowTagDropdown(false);
-                            }}
-                            className="px-3 sm:px-4 py-2 hover:bg-[#3a3a3a] cursor-pointer text-xs sm:text-sm text-white"
-                          >
-                            {option}
-                          </li>
-                        ))}
-                      </motion.ul>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </div>
-
-              {/* Message Text Area */}
-              <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1 sm:mb-2">
-                  Your Message <span className="text-red-400">*</span>
-                </label>
-                <textarea
-                  rows="5"
-                  value={formData.message}
-                  onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
-                  className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-[#18181b] border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent transition duration-300 resize-vertical text-sm sm:text-base"
-                  placeholder="Share your thoughts, questions, or experiences with the Valhalla community..."
-                  required
-                  disabled={submitting}
-                ></textarea>
-              </div>
-
-              {/* Submit Button - Responsive sizing */}
-              <div className="flex justify-center pt-2 sm:pt-4">
-                <button 
-                  type="submit"
-                  disabled={submitting}
-                  className="w-full sm:w-2/3 lg:w-1/2 bg-white text-black font-semibold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition duration-300 hover:bg-gray-200 hover:shadow-[0_0_16px_4px_rgba(255,0,0,0.6)] disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
-                >
-                  {submitting ? 'Submitting...' : 'Submit to Valhalla'}
-                </button>
-              </div>
-            </form>
-          </div>
-
-          {/* Comments Section - Full width on mobile, comes after form */}
-          <div className="order-2 lg:order-2 space-y-4 sm:space-y-6">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0">
-              <h3 className="text-xl sm:text-2xl font-bold">Community Voices</h3>
-              <button
-                onClick={() => setShowComments(!showComments)}
-                className="bg-gray-700 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-gray-600 transition duration-300 flex items-center justify-center sm:justify-start space-x-2 text-sm sm:text-base w-full sm:w-auto"
-              >
-                <span>{showComments ? "Hide" : "Show"} Comments</span>
-                <svg
-                  className={`w-4 h-4 transform transition-transform duration-300 ${showComments ? "rotate-180" : ""}`}
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
+        {/* Forum Threads List */}
+        <div className="mb-6 sm:mb-8">
+          {loading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto"></div>
+              <p className="text-gray-400 mt-2">Loading threads...</p>
             </div>
-
-            <AnimatePresence>
-              {showComments && (
+          ) : filteredThreads.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-gray-400">No threads yet. Be the first to create one!</p><br />
+            </div>
+          ) : (
+            <div 
+              className="space-y-3 sm:space-y-4 max-h-[600px] overflow-y-auto pr-2"
+              style={{
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#27272a #0a0a0a'
+              }}
+            >
+              <style>{`
+                .space-y-3::-webkit-scrollbar,
+                .space-y-4::-webkit-scrollbar {
+                  width: 8px;
+                }
+                .space-y-3::-webkit-scrollbar-track,
+                .space-y-4::-webkit-scrollbar-track {
+                  background: #0a0a0a;
+                  border-radius: 10px;
+                }
+                .space-y-3::-webkit-scrollbar-thumb,
+                .space-y-4::-webkit-scrollbar-thumb {
+                  background: #27272a;
+                  border-radius: 10px;
+                  transition: background 0.3s ease;
+                }
+                .space-y-3::-webkit-scrollbar-thumb:hover,
+                .space-y-4::-webkit-scrollbar-thumb:hover {
+                  background: #3a3a3a;
+                }
+              `}</style>
+              {filteredThreads.slice(0, 6).map((thread) => (
                 <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-                  className="overflow-hidden"
+                  key={thread.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-[#18181b] rounded-lg p-4 sm:p-6 hover:bg-[#27272a] transition-all duration-300 cursor-pointer border border-gray-800 hover:border-gray-700"
+                  onClick={() => handleThreadClick(thread)}
                 >
-                  <div className="space-y-3 sm:space-y-4 max-h-96 sm:max-h-120 overflow-y-auto custom-scrollbar">
-                    {loading ? (
-                      <div className="text-center py-6 sm:py-8">
-                        <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-white mx-auto"></div>
-                        <p className="text-gray-400 mt-2 text-sm sm:text-base">Loading posts...</p>
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-0">
+                    <div className="flex-1">
+                      <h3 className="text-lg sm:text-xl font-bold mb-2 text-white hover:text-gray-300 transition">
+                        {thread.title}
+                      </h3>
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-400">
+                        <span className="bg-[#27272a] px-2 sm:px-3 py-1 rounded-full">{thread.category}</span>
+                        <span>by {thread.author}</span>
+                        <span className="hidden sm:inline">{getTimeAgo(thread.last_activity)}</span>
                       </div>
-                    ) : posts.length === 0 ? (
-                      <div className="text-center py-6 sm:py-8">
-                        <p className="text-gray-400 text-sm sm:text-base px-4">No posts yet. Be the first to share your journey!</p>
+                      <span className="text-xs text-gray-400 mt-1 block sm:hidden">{getTimeAgo(thread.last_activity)}</span>
+                    </div>
+                    <div className="flex gap-4 sm:gap-6 text-xs sm:text-sm text-gray-400 sm:ml-4">
+                      <div className="text-center">
+                        <div className="font-bold text-white">{thread.replies}</div>
+                        <div>replies</div>
                       </div>
-                    ) : (
-                      posts.map((post) => (
-                        <div key={post.id} className="bg-[#18181b] p-3 sm:p-4 rounded-lg border border-gray-700">
-                          <div className="flex justify-between items-start mb-2">
-                            <div className="flex items-center space-x-2 flex-1 min-w-0">
-                              <h4 className="font-semibold text-white text-sm sm:text-base truncate">{post.name}</h4>
-                              <span className={`text-xs ${getTagColor(post.tag)} text-white px-2 py-1 rounded-full whitespace-nowrap`}>
-                                {post.tag}
-                              </span>
-                            </div>
-                            <span className="text-xs text-gray-400 whitespace-nowrap ml-2">{getTimeAgo(post.created_at)}</span>
-                          </div>
-                          <p className="text-gray-300 text-xs sm:text-sm whitespace-pre-wrap break-words">{post.comment}</p>
-                        </div>
-                      ))
-                    )}
+                      <div className="text-center">
+                        <div className="font-bold text-white">{thread.views}</div>
+                        <div>views</div>
+                      </div>
+                    </div>
                   </div>
                 </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+              ))}
+            </div>
+          )}
         </div>
+
+        {/* Create Thread Modal */}
+        <AnimatePresence>
+          {showCreateForm && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+              onClick={() => setShowCreateForm(false)}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="bg-[#18181b] rounded-xl max-w-3xl w-full max-h-[90vh] sm:max-h-[80vh] overflow-y-auto p-4 sm:p-6 md:p-8"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex justify-between items-start mb-4 sm:mb-6">
+                  <h2 className="text-2xl sm:text-3xl font-bold">Create New Thread</h2>
+                  <button
+                    onClick={() => setShowCreateForm(false)}
+                    className="text-gray-400 hover:text-white text-2xl sm:text-3xl leading-none"
+                  >
+                    ×
+                  </button>
+                </div>
+
+                <div className="space-y-4 sm:space-y-6">
+                  {/* Author Name Input */}
+                  <div>
+                    <label className="block text-xs sm:text-sm font-semibold mb-2">
+                      Your Name <span className="text-red-400">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.author}
+                      onChange={(e) => handleInputChange('author', e.target.value)}
+                      placeholder="Enter your warrior name"
+                      className="w-full bg-[#0a0a0a] border border-gray-700 rounded-lg p-3 sm:p-4 text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:border-gray-500"
+                      disabled={submitting}
+                    />
+                    {formErrors.author && (
+                      <p className="text-red-400 text-sm mt-2">{formErrors.author}</p>
+                    )}
+                  </div>
+
+                  {/* Category Dropdown */}
+                  <div className="relative">
+                    <label htmlFor="category" className="block text-xs sm:text-sm font-semibold mb-2">
+                      Category <span className="text-red-400">*</span>
+                    </label>
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => !submitting && setShowCategoryDropdown(prev => !prev)}
+                        disabled={submitting}
+                        className="w-full px-3 sm:px-4 py-3 sm:py-4 pr-4 border border-gray-700 bg-[#0a0a0a] text-white rounded-lg shadow-sm text-left flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+                      >
+                        <span className={formData.category ? "text-white" : "text-gray-500"}>
+                          {formData.category || "Select a category"}
+                        </span>
+                        <svg
+                          className={`w-4 h-4 transform transition-transform duration-300 ${showCategoryDropdown ? "rotate-180" : ""}`}
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+
+                      <AnimatePresence>
+                        {showCategoryDropdown && !submitting && (
+                          <motion.ul
+                            key="category-dropdown"
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.2 }}
+                            className="absolute z-10 w-full bg-[#27272a] mt-1 border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                          >
+                            {categories.filter(cat => cat !== "All").map(option => (
+                              <li
+                                key={option}
+                                onClick={() => {
+                                  handleInputChange('category', option);
+                                  setShowCategoryDropdown(false);
+                                }}
+                                className="px-3 sm:px-4 py-2 sm:py-3 hover:bg-[#3a3a3a] cursor-pointer text-xs sm:text-sm text-white transition-colors"
+                              >
+                                {option}
+                              </li>
+                            ))}
+                          </motion.ul>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                    {formErrors.category && (
+                      <p className="text-red-400 text-sm mt-2">{formErrors.category}</p>
+                    )}
+                  </div>
+
+                  {/* Title Input */}
+                  <div>
+                    <label className="block text-xs sm:text-sm font-semibold mb-2">
+                      Thread Title <span className="text-red-400">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.title}
+                      onChange={(e) => handleInputChange('title', e.target.value)}
+                      placeholder="Enter a descriptive title..."
+                      maxLength={100}
+                      className="w-full bg-[#0a0a0a] border border-gray-700 rounded-lg p-3 sm:p-4 text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:border-gray-500"
+                      disabled={submitting}
+                    />
+                    {formErrors.title && (
+                      <p className="text-red-400 text-sm mt-2">{formErrors.title}</p>
+                    )}
+                    <p className="text-gray-500 text-sm mt-1">{formData.title.length}/100</p>
+                  </div>
+
+                  {/* Content Textarea */}
+                  <div>
+                    <label className="block text-xs sm:text-sm font-semibold mb-2">
+                      Content <span className="text-red-400">*</span>
+                    </label>
+                    <textarea
+                      value={formData.content}
+                      onChange={(e) => handleInputChange('content', e.target.value)}
+                      placeholder="Share your thoughts, questions, or progress..."
+                      maxLength={2000}
+                      className="w-full bg-[#0a0a0a] border border-gray-700 rounded-lg p-3 sm:p-4 text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:border-gray-500 resize-none"
+                      rows={6}
+                      disabled={submitting}
+                    />
+                    {formErrors.content && (
+                      <p className="text-red-400 text-sm mt-2">{formErrors.content}</p>
+                    )}
+                    <p className="text-gray-500 text-sm mt-1">{formData.content.length}/2000</p>
+                  </div>
+
+                  {/* Submit Button */}
+                  <button
+                    onClick={handleSubmitThread}
+                    disabled={submitting}
+                    className="w-full bg-white text-black font-semibold px-6 py-3 rounded-full hover:bg-gray-200 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+                  >
+                    {submitting ? 'Posting...' : 'Post Thread'}
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Thread Detail Modal */}
+        <AnimatePresence>
+          {selectedThread && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+              onClick={() => setSelectedThread(null)}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="bg-[#18181b] rounded-xl max-w-3xl w-full max-h-[90vh] sm:max-h-[80vh] overflow-y-auto p-4 sm:p-6 md:p-8"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex justify-between items-start mb-4 sm:mb-6">
+                  <div className="flex-1 pr-2">
+                    <span className="bg-[#27272a] px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm text-gray-300 mb-2 sm:mb-3 inline-block">
+                      {selectedThread.category}
+                    </span>
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2">{selectedThread.title}</h2>
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-400">
+                      <span>by {selectedThread.author}</span>
+                      <span>{getTimeAgo(selectedThread.last_activity)}</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setSelectedThread(null)}
+                    className="text-gray-400 hover:text-white text-2xl sm:text-3xl leading-none flex-shrink-0"
+                  >
+                    ×
+                  </button>
+                </div>
+
+                {/* Original Post */}
+                <div className="bg-[#0a0a0a] rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
+                  <p className="text-sm sm:text-base text-gray-300 leading-relaxed whitespace-pre-wrap">{selectedThread.content}</p>
+                </div>
+
+                {/* Replies */}
+                <div className="space-y-3 sm:space-y-4">
+                  <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">Replies ({selectedThread.replies})</h3>
+                  {selectedThread.posts && selectedThread.posts.length > 0 ? (
+                    selectedThread.posts.map((post) => (
+                      <div key={post.id} className="bg-[#0a0a0a] rounded-lg p-4 sm:p-6 border-l-4 border-gray-700">
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1 sm:gap-0 mb-2 sm:mb-3">
+                          <span className="font-semibold text-sm sm:text-base text-white">{post.author}</span>
+                          <span className="text-xs sm:text-sm text-gray-400">{getTimeAgo(post.created_at)}</span>
+                        </div>
+                        <p className="text-sm sm:text-base text-gray-300 leading-relaxed whitespace-pre-wrap">{post.content}</p>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-gray-400 text-center py-4 text-sm sm:text-base">No replies yet. Be the first to reply!</p>
+                  )}
+                </div>
+
+                {/* Reply Input */}
+                <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-700">
+                  <input
+                    type="text"
+                    placeholder="Your name"
+                    value={replyAuthor}
+                    onChange={(e) => setReplyAuthor(e.target.value)}
+                    className="w-full bg-[#0a0a0a] border border-gray-700 rounded-lg p-3 sm:p-4 text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:border-gray-500 mb-3 sm:mb-4"
+                    disabled={submittingReply}
+                  />
+                  <textarea
+                    placeholder="Write your reply..."
+                    value={replyContent}
+                    onChange={(e) => setReplyContent(e.target.value)}
+                    className="w-full bg-[#0a0a0a] border border-gray-700 rounded-lg p-3 sm:p-4 text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:border-gray-500 resize-none"
+                    rows={4}
+                    disabled={submittingReply}
+                  />
+                  <button 
+                    onClick={handleSubmitReply}
+                    disabled={submittingReply}
+                    className="mt-3 sm:mt-4 bg-white text-black font-semibold px-6 py-2 rounded-full hover:bg-gray-200 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+                  >
+                    {submittingReply ? 'Posting...' : 'Post Reply'}
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </section>
   );

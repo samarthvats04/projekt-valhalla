@@ -35,8 +35,8 @@ function App() {
 
             {/* Program Grid */}
             <Programgrid />
-
-            {/* Forum Section */}
+            
+            {/* Updated Forum Section */}
             <Forum />
 
             {/* About section */}
