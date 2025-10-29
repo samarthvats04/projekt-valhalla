@@ -20,7 +20,7 @@ function Header() {
   };
 
   return (
-    <header className="sticky top-0 left-0 w-full bg-[#000] bg-opacity-90 backdrop-blur-md z-50 shadow-sm">
+    <header className="sticky top-0 left-0 w-full bg-[#000] bg-opacity-90 backdrop-blur-md z-[100] shadow-sm">
       <div className="max-w-7xl mx-auto px-4 py-4">
         
         {/* Mobile Layout */}

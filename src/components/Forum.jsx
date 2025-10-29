@@ -22,6 +22,7 @@ function Forum() {
   const [replyContent, setReplyContent] = useState('');
   const [replyAuthor, setReplyAuthor] = useState('');
   const [submittingReply, setSubmittingReply] = useState(false);
+  const [expandedReplies, setExpandedReplies] = useState({});
 
   const categories = ["All", "Progress Reports", "Technique & Form", "Nutrition", "Success Stories", "General Discussion"];
 
@@ -89,6 +90,9 @@ function Forum() {
   // Handle thread selection and load replies
   const handleThreadClick = async (thread) => {
     try {
+      // Disable body scroll
+      document.body.style.overflow = 'hidden';
+      
       // Increment view count
       const { error: updateError } = await supabase
         .from('forum_threads')
@@ -272,394 +276,481 @@ function Forum() {
     ? threads 
     : threads.filter(thread => thread.category === activeCategory);
 
+  const toggleReplyExpansion = (replyId) => {
+    setExpandedReplies(prev => ({
+      ...prev,
+      [replyId]: !prev[replyId]
+    }));
+  };
+
+  const truncateText = (text, maxLength = 150) => {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
+  };
+
+  // Close modal and re-enable body scroll
+  const closeThreadModal = () => {
+    setSelectedThread(null);
+    setExpandedReplies({});
+    document.body.style.overflow = 'unset';
+  };
+
+  const closeCreateModal = () => {
+    setShowCreateForm(false);
+    document.body.style.overflow = 'unset';
+  };
+
   useEffect(() => {
     console.log('Forum component mounted');
     testConnection();
     fetchThreads();
   }, []);
 
+  // Enable body scroll when modals are open
+  useEffect(() => {
+    if (showCreateForm) {
+      document.body.style.overflow = 'hidden';
+    }
+  }, [showCreateForm]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
+
   return (
-    <section id="forum" className="bg-[#000] text-white scroll-mt-24 py-8 sm:py-12 md:py-16 px-4 sm:px-6 relative overflow-hidden">
-      {/* Corner spinning images with overlay */}
-      <div className="absolute inset-0 pointer-events-none z-0">
-        {/* Dark overlay */}
-        <div className="absolute inset-0 bg-black/60"></div>
-        
-        {/* Top Left - Counter-clockwise */}
-        <div className="absolute -top-1/2 -left-1/2 w-full h-full">
-          <img 
-            src="/assets/forumspin.png" 
-            alt="" 
-            className="w-full h-full object-contain animate-spin-slow-ccw opacity-30"
-            style={{ animationDuration: '45s' }}
-          />
-        </div>
-        
-        {/* Top Right - Clockwise */}
-        <div className="absolute -top-1/2 -right-1/2 w-full h-full">
-          <img 
-            src="/assets/forumspin.png" 
-            alt="" 
-            className="w-full h-full object-contain animate-spin-slow-cw opacity-30"
-            style={{ animationDuration: '45s' }}
-          />
-        </div>
-        
-        {/* Bottom Left - Counter-clockwise */}
-        <div className="absolute -bottom-1/2 -left-1/2 w-full h-full">
-          <img 
-            src="/assets/forumspin.png" 
-            alt="" 
-            className="w-full h-full object-contain animate-spin-slow-ccw opacity-30"
-            style={{ animationDuration: '45s' }}
-          />
-        </div>
-        
-        {/* Bottom Right - Clockwise */}
-        <div className="absolute -bottom-1/2 -right-1/2 w-full h-full">
-          <img 
-            src="/assets/forumspin.png" 
-            alt="" 
-            className="w-full h-full object-contain animate-spin-slow-cw opacity-30"
-            style={{ animationDuration: '45s' }}
-          />
-        </div>
-      </div>
-
-      {/* Keyframes for animations */}
-      <style>{`
-        @keyframes spin-slow-cw {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
-        }
-        
-        @keyframes spin-slow-ccw {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(-360deg);
-          }
-        }
-        
-        .animate-spin-slow-cw {
-          animation: spin-slow-cw linear infinite;
-        }
-        
-        .animate-spin-slow-ccw {
-          animation: spin-slow-ccw linear infinite;
-        }
-      `}</style>
-
-      <div className="max-w-6xl mx-auto relative z-10">
-        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-3 sm:mb-4 tracking-wide">
-          Hall of Echoes
-        </h2>
-        <p className="text-base sm:text-lg text-gray-300 text-center mb-6 sm:mb-8 px-2">
-          Share your battles, your victories, your feedback.<br className="hidden sm:block" />
-          Your experience shapes what we build next. Real talk only.
-        </p>
-
-        {/* Create Thread Button */}
-        <div className="flex justify-center mb-6 sm:mb-8">
-          <button
-            onClick={() => setShowCreateForm(true)}
-            className="bg-white text-black font-semibold px-6 sm:px-8 py-2.5 sm:py-3 rounded-full hover:bg-gray-200 transition duration-300 text-sm sm:text-base"
-          >
-            + Create New Thread
-          </button>
+    <>
+      <section id="forum" className="bg-[#000] text-white scroll-mt-24 py-8 sm:py-12 md:py-16 px-4 sm:px-6 relative overflow-hidden">
+        {/* Corner spinning images with overlay */}
+        <div className="absolute inset-0 pointer-events-none z-0">
+          {/* Dark overlay */}
+          <div className="absolute inset-0 bg-black/60"></div>
+          
+          {/* Top Left - Counter-clockwise */}
+          <div className="absolute -top-1/2 -left-1/2 w-full h-full">
+            <img 
+              src="/assets/forumspin.png" 
+              alt="" 
+              className="w-full h-full object-contain animate-spin-slow-ccw opacity-30"
+              style={{ animationDuration: '45s' }}
+            />
+          </div>
+          
+          {/* Top Right - Clockwise */}
+          <div className="absolute -top-1/2 -right-1/2 w-full h-full">
+            <img 
+              src="/assets/forumspin.png" 
+              alt="" 
+              className="w-full h-full object-contain animate-spin-slow-cw opacity-30"
+              style={{ animationDuration: '45s' }}
+            />
+          </div>
+          
+          {/* Bottom Left - Counter-clockwise */}
+          <div className="absolute -bottom-1/2 -left-1/2 w-full h-full">
+            <img 
+              src="/assets/forumspin.png" 
+              alt="" 
+              className="w-full h-full object-contain animate-spin-slow-ccw opacity-30"
+              style={{ animationDuration: '45s' }}
+            />
+          </div>
+          
+          {/* Bottom Right - Clockwise */}
+          <div className="absolute -bottom-1/2 -right-1/2 w-full h-full">
+            <img 
+              src="/assets/forumspin.png" 
+              alt="" 
+              className="w-full h-full object-contain animate-spin-slow-cw opacity-30"
+              style={{ animationDuration: '45s' }}
+            />
+          </div>
         </div>
 
-        {/* Category Filter */}
-        <div className="flex flex-wrap gap-2 sm:gap-3 justify-center mb-6 sm:mb-8 px-2">
-          {categories.map((category) => (
+        {/* Keyframes for animations */}
+        <style>{`
+          @keyframes spin-slow-cw {
+            from {
+              transform: rotate(0deg);
+            }
+            to {
+              transform: rotate(360deg);
+            }
+          }
+          
+          @keyframes spin-slow-ccw {
+            from {
+              transform: rotate(0deg);
+            }
+            to {
+              transform: rotate(-360deg);
+            }
+          }
+          
+          .animate-spin-slow-cw {
+            animation: spin-slow-cw linear infinite;
+          }
+          
+          .animate-spin-slow-ccw {
+            animation: spin-slow-ccw linear infinite;
+          }
+        `}</style>
+
+        <div className="max-w-6xl mx-auto relative z-10">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-3 sm:mb-4 tracking-wide">
+            Hall of Echoes
+          </h2>
+          <p className="text-base sm:text-lg text-gray-300 text-center mb-6 sm:mb-8 px-2">
+            Share your battles, your victories, your feedback.<br className="hidden sm:block" />
+            Your experience shapes what we build next. Real talk only.
+          </p>
+
+          {/* Create Thread Button */}
+          <div className="flex justify-center mb-6 sm:mb-8">
             <button
-              key={category}
-              onClick={() => setActiveCategory(category)}
-              className={`px-3 sm:px-6 py-1.5 sm:py-2 rounded-full font-semibold transition-all duration-300 text-xs sm:text-base ${
-                activeCategory === category
-                  ? 'bg-white text-black'
-                  : 'bg-[#18181b] text-gray-300 hover:bg-[#27272a]'
-              }`}
+              onClick={() => setShowCreateForm(true)}
+              className="bg-white text-black font-semibold px-6 sm:px-8 py-2.5 sm:py-3 rounded-full hover:bg-gray-200 transition duration-300 text-sm sm:text-base"
             >
-              {category}
+              + Create New Thread
             </button>
-          ))}
-        </div>
+          </div>
 
-        {/* Forum Threads List */}
-        <div className="mb-6 sm:mb-8">
-          {loading ? (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto"></div>
-              <p className="text-gray-400 mt-2">Loading threads...</p>
-            </div>
-          ) : filteredThreads.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-gray-400">No threads yet. Be the first to create one!</p>
-            </div>
-          ) : (
-            <div 
-              className="space-y-3 sm:space-y-4 max-h-[600px] overflow-y-auto pr-2"
+          {/* Category Filter */}
+          <div className="flex flex-wrap gap-2 sm:gap-3 justify-center mb-6 sm:mb-8 px-2">
+            {categories.map((category) => (
+              <button
+                key={category}
+                onClick={() => setActiveCategory(category)}
+                className={`px-3 sm:px-6 py-1.5 sm:py-2 rounded-full font-semibold transition-all duration-300 text-xs sm:text-base ${
+                  activeCategory === category
+                    ? 'bg-white text-black'
+                    : 'bg-[#18181b] text-gray-300 hover:bg-[#27272a]'
+                }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+
+          {/* Forum Threads List */}
+          <div className="mb-6 sm:mb-8">
+            {loading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto"></div>
+                <p className="text-gray-400 mt-2">Loading threads...</p>
+              </div>
+            ) : filteredThreads.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-400">No threads yet. Be the first to create one!</p>
+              </div>
+            ) : (
+              <div 
+                className="space-y-3 sm:space-y-4 max-h-[600px] overflow-y-auto pr-2"
+                style={{
+                  scrollbarWidth: 'thin',
+                  scrollbarColor: '#27272a #0a0a0a'
+                }}
+              >
+                <style>{`
+                  .space-y-3::-webkit-scrollbar,
+                  .space-y-4::-webkit-scrollbar {
+                    width: 8px;
+                  }
+                  .space-y-3::-webkit-scrollbar-track,
+                  .space-y-4::-webkit-scrollbar-track {
+                    background: #0a0a0a;
+                    border-radius: 10px;
+                  }
+                  .space-y-3::-webkit-scrollbar-thumb,
+                  .space-y-4::-webkit-scrollbar-thumb {
+                    background: #27272a;
+                    border-radius: 10px;
+                    transition: background 0.3s ease;
+                  }
+                  .space-y-3::-webkit-scrollbar-thumb:hover,
+                  .space-y-4::-webkit-scrollbar-thumb:hover {
+                    background: #3a3a3a;
+                  }
+                `}</style>
+                {filteredThreads.slice(0, 6).map((thread) => (
+                  <motion.div
+                    key={thread.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-[#18181b] rounded-lg p-4 sm:p-6 hover:bg-[#27272a] transition-all duration-300 cursor-pointer border border-gray-800 hover:border-gray-700"
+                    onClick={() => handleThreadClick(thread)}
+                  >
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-0">
+                      <div className="flex-1">
+                        <h3 className="text-lg sm:text-xl font-bold mb-2 text-white hover:text-gray-300 transition">
+                          {thread.title}
+                        </h3>
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-400">
+                          <span className="bg-[#27272a] px-2 sm:px-3 py-1 rounded-full">{thread.category}</span>
+                          <span>by {thread.author}</span>
+                          <span className="hidden sm:inline">{getTimeAgo(thread.last_activity)}</span>
+                        </div>
+                        <span className="text-xs text-gray-400 mt-1 block sm:hidden">{getTimeAgo(thread.last_activity)}</span>
+                      </div>
+                      <div className="flex gap-4 sm:gap-6 text-xs sm:text-sm text-gray-400 sm:ml-4">
+                        <div className="text-center">
+                          <div className="font-bold text-white">{thread.replies}</div>
+                          <div>replies</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-bold text-white">{thread.views}</div>
+                          <div>views</div>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Create Thread Modal */}
+      <AnimatePresence>
+        {showCreateForm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/90 z-[9999] flex items-center justify-center p-4"
+            onClick={closeCreateModal}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-[#18181b] rounded-xl max-w-3xl w-full max-h-[85vh] overflow-y-auto p-4 sm:p-6 md:p-8 my-4"
+              onClick={(e) => e.stopPropagation()}
               style={{
                 scrollbarWidth: 'thin',
                 scrollbarColor: '#27272a #0a0a0a'
               }}
             >
               <style>{`
-                .space-y-3::-webkit-scrollbar,
-                .space-y-4::-webkit-scrollbar {
+                .bg-\[#18181b\]::-webkit-scrollbar {
                   width: 8px;
                 }
-                .space-y-3::-webkit-scrollbar-track,
-                .space-y-4::-webkit-scrollbar-track {
+                .bg-\[#18181b\]::-webkit-scrollbar-track {
                   background: #0a0a0a;
                   border-radius: 10px;
                 }
-                .space-y-3::-webkit-scrollbar-thumb,
-                .space-y-4::-webkit-scrollbar-thumb {
+                .bg-\[#18181b\]::-webkit-scrollbar-thumb {
                   background: #27272a;
                   border-radius: 10px;
                   transition: background 0.3s ease;
                 }
-                .space-y-3::-webkit-scrollbar-thumb:hover,
-                .space-y-4::-webkit-scrollbar-thumb:hover {
+                .bg-\[#18181b\]::-webkit-scrollbar-thumb:hover {
                   background: #3a3a3a;
                 }
               `}</style>
-              {filteredThreads.slice(0, 6).map((thread) => (
-                <motion.div
-                  key={thread.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="bg-[#18181b] rounded-lg p-4 sm:p-6 hover:bg-[#27272a] transition-all duration-300 cursor-pointer border border-gray-800 hover:border-gray-700"
-                  onClick={() => handleThreadClick(thread)}
+              <div className="flex justify-between items-start mb-4 sm:mb-6">
+                <h2 className="text-2xl sm:text-3xl font-bold">Create New Thread</h2>
+                <button
+                  onClick={closeCreateModal}
+                  className="text-gray-400 hover:text-white text-2xl sm:text-3xl leading-none"
                 >
-                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-0">
-                    <div className="flex-1">
-                      <h3 className="text-lg sm:text-xl font-bold mb-2 text-white hover:text-gray-300 transition">
-                        {thread.title}
-                      </h3>
-                      <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-400">
-                        <span className="bg-[#27272a] px-2 sm:px-3 py-1 rounded-full">{thread.category}</span>
-                        <span>by {thread.author}</span>
-                        <span className="hidden sm:inline">{getTimeAgo(thread.last_activity)}</span>
-                      </div>
-                      <span className="text-xs text-gray-400 mt-1 block sm:hidden">{getTimeAgo(thread.last_activity)}</span>
-                    </div>
-                    <div className="flex gap-4 sm:gap-6 text-xs sm:text-sm text-gray-400 sm:ml-4">
-                      <div className="text-center">
-                        <div className="font-bold text-white">{thread.replies}</div>
-                        <div>replies</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="font-bold text-white">{thread.views}</div>
-                        <div>views</div>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          )}
-        </div>
+                  ×
+                </button>
+              </div>
 
-        {/* Create Thread Modal */}
-        <AnimatePresence>
-          {showCreateForm && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
-              onClick={() => setShowCreateForm(false)}
-            >
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                className="bg-[#18181b] rounded-xl max-w-3xl w-full max-h-[90vh] sm:max-h-[80vh] overflow-y-auto p-4 sm:p-6 md:p-8"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="flex justify-between items-start mb-4 sm:mb-6">
-                  <h2 className="text-2xl sm:text-3xl font-bold">Create New Thread</h2>
-                  <button
-                    onClick={() => setShowCreateForm(false)}
-                    className="text-gray-400 hover:text-white text-2xl sm:text-3xl leading-none"
-                  >
-                    ×
-                  </button>
-                </div>
-
-                <div className="space-y-4 sm:space-y-6">
-                  {/* Author Name Input */}
-                  <div>
-                    <label className="block text-xs sm:text-sm font-semibold mb-2">
-                      Your Name <span className="text-red-400">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.author}
-                      onChange={(e) => handleInputChange('author', e.target.value)}
-                      placeholder="Enter your warrior name"
-                      className="w-full bg-[#0a0a0a] border border-gray-700 rounded-lg p-3 sm:p-4 text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:border-gray-500"
-                      disabled={submitting}
-                    />
-                    {formErrors.author && (
-                      <p className="text-red-400 text-sm mt-2">{formErrors.author}</p>
-                    )}
-                  </div>
-
-                  {/* Category Dropdown */}
-                  <div className="relative">
-                    <label htmlFor="category" className="block text-xs sm:text-sm font-semibold mb-2">
-                      Category <span className="text-red-400">*</span>
-                    </label>
-                    <div className="relative">
-                      <button
-                        type="button"
-                        onClick={() => !submitting && setShowCategoryDropdown(prev => !prev)}
-                        disabled={submitting}
-                        className="w-full px-3 sm:px-4 py-3 sm:py-4 pr-4 border border-gray-700 bg-[#0a0a0a] text-white rounded-lg shadow-sm text-left flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
-                      >
-                        <span className={formData.category ? "text-white" : "text-gray-500"}>
-                          {formData.category || "Select a category"}
-                        </span>
-                        <svg
-                          className={`w-4 h-4 transform transition-transform duration-300 ${showCategoryDropdown ? "rotate-180" : ""}`}
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </button>
-
-                      <AnimatePresence>
-                        {showCategoryDropdown && !submitting && (
-                          <motion.ul
-                            key="category-dropdown"
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            transition={{ duration: 0.2 }}
-                            className="absolute z-10 w-full bg-[#27272a] mt-1 border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto"
-                          >
-                            {categories.filter(cat => cat !== "All").map(option => (
-                              <li
-                                key={option}
-                                onClick={() => {
-                                  handleInputChange('category', option);
-                                  setShowCategoryDropdown(false);
-                                }}
-                                className="px-3 sm:px-4 py-2 sm:py-3 hover:bg-[#3a3a3a] cursor-pointer text-xs sm:text-sm text-white transition-colors"
-                              >
-                                {option}
-                              </li>
-                            ))}
-                          </motion.ul>
-                        )}
-                      </AnimatePresence>
-                    </div>
-                    {formErrors.category && (
-                      <p className="text-red-400 text-sm mt-2">{formErrors.category}</p>
-                    )}
-                  </div>
-
-                  {/* Title Input */}
-                  <div>
-                    <label className="block text-xs sm:text-sm font-semibold mb-2">
-                      Thread Title <span className="text-red-400">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.title}
-                      onChange={(e) => handleInputChange('title', e.target.value)}
-                      placeholder="Enter a descriptive title..."
-                      maxLength={100}
-                      className="w-full bg-[#0a0a0a] border border-gray-700 rounded-lg p-3 sm:p-4 text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:border-gray-500"
-                      disabled={submitting}
-                    />
-                    {formErrors.title && (
-                      <p className="text-red-400 text-sm mt-2">{formErrors.title}</p>
-                    )}
-                    <p className="text-gray-500 text-sm mt-1">{formData.title.length}/100</p>
-                  </div>
-
-                  {/* Content Textarea */}
-                  <div>
-                    <label className="block text-xs sm:text-sm font-semibold mb-2">
-                      Content <span className="text-red-400">*</span>
-                    </label>
-                    <textarea
-                      value={formData.content}
-                      onChange={(e) => handleInputChange('content', e.target.value)}
-                      placeholder="Share your thoughts, questions, or progress..."
-                      maxLength={2000}
-                      className="w-full bg-[#0a0a0a] border border-gray-700 rounded-lg p-3 sm:p-4 text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:border-gray-500 resize-none"
-                      rows={6}
-                      disabled={submitting}
-                    />
-                    {formErrors.content && (
-                      <p className="text-red-400 text-sm mt-2">{formErrors.content}</p>
-                    )}
-                    <p className="text-gray-500 text-sm mt-1">{formData.content.length}/2000</p>
-                  </div>
-
-                  {/* Submit Button */}
-                  <button
-                    onClick={handleSubmitThread}
+              <div className="space-y-4 sm:space-y-6">
+                {/* Author Name Input */}
+                <div>
+                  <label className="block text-xs sm:text-sm font-semibold mb-2">
+                    Your Name <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.author}
+                    onChange={(e) => handleInputChange('author', e.target.value)}
+                    placeholder="Enter your warrior name"
+                    className="w-full bg-[#0a0a0a] border border-gray-700 rounded-lg p-3 sm:p-4 text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:border-gray-500"
                     disabled={submitting}
-                    className="w-full bg-white text-black font-semibold px-6 py-3 rounded-full hover:bg-gray-200 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
-                  >
-                    {submitting ? 'Posting...' : 'Post Thread'}
-                  </button>
+                  />
+                  {formErrors.author && (
+                    <p className="text-red-400 text-sm mt-2">{formErrors.author}</p>
+                  )}
                 </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
-        {/* Thread Detail Modal */}
-        <AnimatePresence>
-          {selectedThread && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
-              onClick={() => setSelectedThread(null)}
-            >
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                className="bg-[#18181b] rounded-xl max-w-3xl w-full max-h-[90vh] sm:max-h-[80vh] overflow-y-auto p-4 sm:p-6 md:p-8"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="flex justify-between items-start mb-4 sm:mb-6">
-                  <div className="flex-1 pr-2">
-                    <span className="bg-[#27272a] px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm text-gray-300 mb-2 sm:mb-3 inline-block">
-                      {selectedThread.category}
-                    </span>
-                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2">{selectedThread.title}</h2>
-                    <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-400">
-                      <span>by {selectedThread.author}</span>
-                      <span>{getTimeAgo(selectedThread.last_activity)}</span>
-                    </div>
+                {/* Category Dropdown */}
+                <div className="relative">
+                  <label htmlFor="category" className="block text-xs sm:text-sm font-semibold mb-2">
+                    Category <span className="text-red-400">*</span>
+                  </label>
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => !submitting && setShowCategoryDropdown(prev => !prev)}
+                      disabled={submitting}
+                      className="w-full px-3 sm:px-4 py-3 sm:py-4 pr-4 border border-gray-700 bg-[#0a0a0a] text-white rounded-lg shadow-sm text-left flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+                    >
+                      <span className={formData.category ? "text-white" : "text-gray-500"}>
+                        {formData.category || "Select a category"}
+                      </span>
+                      <svg
+                        className={`w-4 h-4 transform transition-transform duration-300 ${showCategoryDropdown ? "rotate-180" : ""}`}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+
+                    <AnimatePresence>
+                      {showCategoryDropdown && !submitting && (
+                        <motion.ul
+                          key="category-dropdown"
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.2 }}
+                          className="absolute z-10 w-full bg-[#27272a] mt-1 border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                        >
+                          {categories.filter(cat => cat !== "All").map(option => (
+                            <li
+                              key={option}
+                              onClick={() => {
+                                handleInputChange('category', option);
+                                setShowCategoryDropdown(false);
+                              }}
+                              className="px-3 sm:px-4 py-2 sm:py-3 hover:bg-[#3a3a3a] cursor-pointer text-xs sm:text-sm text-white transition-colors"
+                            >
+                              {option}
+                            </li>
+                          ))}
+                        </motion.ul>
+                      )}
+                    </AnimatePresence>
                   </div>
-                  <button
-                    onClick={() => setSelectedThread(null)}
-                    className="text-gray-400 hover:text-white text-2xl sm:text-3xl leading-none flex-shrink-0"
-                  >
-                    ×
-                  </button>
+                  {formErrors.category && (
+                    <p className="text-red-400 text-sm mt-2">{formErrors.category}</p>
+                  )}
                 </div>
 
+                {/* Title Input */}
+                <div>
+                  <label className="block text-xs sm:text-sm font-semibold mb-2">
+                    Thread Title <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.title}
+                    onChange={(e) => handleInputChange('title', e.target.value)}
+                    placeholder="Enter a descriptive title..."
+                    maxLength={100}
+                    className="w-full bg-[#0a0a0a] border border-gray-700 rounded-lg p-3 sm:p-4 text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:border-gray-500"
+                    disabled={submitting}
+                  />
+                  {formErrors.title && (
+                    <p className="text-red-400 text-sm mt-2">{formErrors.title}</p>
+                  )}
+                  <p className="text-gray-500 text-sm mt-1">{formData.title.length}/100</p>
+                </div>
+
+                {/* Content Textarea */}
+                <div>
+                  <label className="block text-xs sm:text-sm font-semibold mb-2">
+                    Content <span className="text-red-400">*</span>
+                  </label>
+                  <textarea
+                    value={formData.content}
+                    onChange={(e) => handleInputChange('content', e.target.value)}
+                    placeholder="Share your thoughts, questions, or progress..."
+                    maxLength={2000}
+                    className="w-full bg-[#0a0a0a] border border-gray-700 rounded-lg p-3 sm:p-4 text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:border-gray-500 resize-none"
+                    rows={6}
+                    disabled={submitting}
+                  />
+                  {formErrors.content && (
+                    <p className="text-red-400 text-sm mt-2">{formErrors.content}</p>
+                  )}
+                  <p className="text-gray-500 text-sm mt-1">{formData.content.length}/2000</p>
+                </div>
+
+                {/* Submit Button */}
+                <button
+                  onClick={handleSubmitThread}
+                  disabled={submitting}
+                  className="w-full bg-white text-black font-semibold px-6 py-3 rounded-full hover:bg-gray-200 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+                >
+                  {submitting ? 'Posting...' : 'Post Thread'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Thread Detail Modal */}
+      <AnimatePresence>
+        {selectedThread && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/90 z-[9999] flex items-center justify-center p-4"
+            onClick={closeThreadModal}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-[#18181b] rounded-xl max-w-3xl w-full max-h-[85vh] overflow-hidden flex flex-col p-4 sm:p-6 md:p-8 my-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-start mb-4 sm:mb-6 flex-shrink-0">
+                <div className="flex-1 pr-2">
+                  <span className="bg-[#27272a] px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm text-gray-300 mb-2 sm:mb-3 inline-block">
+                    {selectedThread.category}
+                  </span>
+                  <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2">{selectedThread.title}</h2>
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-400">
+                    <span>by {selectedThread.author}</span>
+                    <span>{getTimeAgo(selectedThread.last_activity)}</span>
+                  </div>
+                </div>
+                <button
+                  onClick={closeThreadModal}
+                  className="text-gray-400 hover:text-white text-2xl sm:text-3xl leading-none flex-shrink-0"
+                >
+                  ×
+                </button>
+              </div>
+
+              {/* Scrollable content area */}
+              <div 
+                className="overflow-y-auto flex-1 -mx-4 sm:-mx-6 md:-mx-8 px-4 sm:px-6 md:px-8"
+                style={{
+                  scrollbarWidth: 'thin',
+                  scrollbarColor: '#27272a #0a0a0a'
+                }}
+              >
+                <style>{`
+                  .overflow-y-auto::-webkit-scrollbar {
+                    width: 8px;
+                  }
+                  .overflow-y-auto::-webkit-scrollbar-track {
+                    background: #0a0a0a;
+                    border-radius: 10px;
+                  }
+                  .overflow-y-auto::-webkit-scrollbar-thumb {
+                    background: #27272a;
+                    border-radius: 10px;
+                    transition: background 0.3s ease;
+                  }
+                  .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+                    background: #3a3a3a;
+                  }
+                `}</style>
                 {/* Original Post */}
                 <div className="bg-[#0a0a0a] rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
                   <p className="text-sm sm:text-base text-gray-300 leading-relaxed whitespace-pre-wrap">{selectedThread.content}</p>
@@ -669,15 +760,31 @@ function Forum() {
                 <div className="space-y-3 sm:space-y-4">
                   <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">Replies ({selectedThread.replies})</h3>
                   {selectedThread.posts && selectedThread.posts.length > 0 ? (
-                    selectedThread.posts.map((post) => (
-                      <div key={post.id} className="bg-[#0a0a0a] rounded-lg p-4 sm:p-6 border-l-4 border-gray-700">
-                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1 sm:gap-0 mb-2 sm:mb-3">
-                          <span className="font-semibold text-sm sm:text-base text-white">{post.author}</span>
-                          <span className="text-xs sm:text-sm text-gray-400">{getTimeAgo(post.created_at)}</span>
+                    selectedThread.posts.map((post) => {
+                      const isLongReply = post.content.length > 150;
+                      const isExpanded = expandedReplies[post.id];
+                      const displayContent = isLongReply && !isExpanded 
+                        ? truncateText(post.content) 
+                        : post.content;
+
+                      return (
+                        <div key={post.id} className="bg-[#0a0a0a] rounded-lg p-4 sm:p-6 border-l-4 border-gray-700">
+                          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1 sm:gap-0 mb-2 sm:mb-3">
+                            <span className="font-semibold text-sm sm:text-base text-white">{post.author}</span>
+                            <span className="text-xs sm:text-sm text-gray-400">{getTimeAgo(post.created_at)}</span>
+                          </div>
+                          <p className="text-sm sm:text-base text-gray-300 leading-relaxed whitespace-pre-wrap">{displayContent}</p>
+                          {isLongReply && (
+                            <button
+                              onClick={() => toggleReplyExpansion(post.id)}
+                              className="text-blue-400 hover:text-blue-300 text-xs sm:text-sm mt-2 font-semibold"
+                            >
+                              {isExpanded ? 'Show less' : 'Show more'}
+                            </button>
+                          )}
                         </div>
-                        <p className="text-sm sm:text-base text-gray-300 leading-relaxed whitespace-pre-wrap">{post.content}</p>
-                      </div>
-                    ))
+                      );
+                    })
                   ) : (
                     <p className="text-gray-400 text-center py-4 text-sm sm:text-base">No replies yet. Be the first to reply!</p>
                   )}
@@ -709,12 +816,12 @@ function Forum() {
                     {submittingReply ? 'Posting...' : 'Post Reply'}
                   </button>
                 </div>
-              </motion.div>
+              </div>
             </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </section>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 
