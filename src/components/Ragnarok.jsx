@@ -530,9 +530,11 @@ const Ragnarok = ({ onBack }) => {
 
 
       <div className="max-w-6xl mx-auto flex flex-col items-center">
-        <h2 className="text-2xl sm:text-4xl md:text-6xl font-bold text-center mb-8 sm:mb-12 tracking-wide leading-relaxed px-2">
-          Prepare for Battle. <br/>Forge the Weapon.
+        <h2 className="text-4xl md:text-5xl lg:text-7xl font-bold text-center mb-4">
+          Ragnarok
         </h2>
+        <br className="hidden sm:block"/>
+        <p className="text-lg md:text-xl text-gray-400 text-center mb-8 md:mb-16">The ultimate 6-Week challenge designed to maximise your functional physical potential.</p>
         <div className="w-full bg-[#18181b] rounded-xl shadow-lg p-4 sm:p-8 text-center relative min-h-[350px]">
           <div className="relative">
             <AnimatePresence mode="wait">
