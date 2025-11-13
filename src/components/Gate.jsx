@@ -75,7 +75,7 @@ const Gate = ({ onAuthenticated }) => {
         {/* Logo */}
         <motion.img
           initial={{ scale: 0, rotate: -180 }}
-          animate={{ scale: 1, rotate: 0 }}
+          animate={{ scale: 1.25, rotate: 0 }}
           transition={{ duration: 1.2, ease: [0.4, 0, 0.2, 1] }}
           src="/assets/valhalla-logo.png"
           alt="Valhalla Gate"
